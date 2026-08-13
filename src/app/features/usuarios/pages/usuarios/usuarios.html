@@ -1,0 +1,76 @@
+<app-page-header
+    title="Usuarios"
+    subtitle="Administración de usuarios del sistema">
+</app-page-header>
+
+
+
+
+<app-page-toolbar>
+
+    <button
+    pButton
+    label="Nuevo Usuario"
+    (click)="showDialog()">
+    </button>
+    <button
+    pButton
+    label="Buscar Usuario"
+    icon="pi pi-search"
+    severity="secondary">
+    </button>
+
+    <app-app-dialog
+    [(visible)]="dialogVisible"
+    title="Nuevo Usuario">
+
+    <app-usuario-form
+        (save)="guardarUsuario($event)"
+        (cancel)="dialogVisible = false">
+    </app-usuario-form>
+
+</app-app-dialog>
+
+</app-page-toolbar>
+
+
+<app-page-content>
+
+    <div class="usuarios-container">
+
+        Área de trabajo de Usuarios
+
+    <app-data-table
+    [columns]="columns"
+    [data]="usuarios"
+    (rowsSelected)="onSelectionChange($event)"
+    [loading]="loading"
+    [rows]="3"
+    [globalFilterFields]="[
+        'id',
+        'nombre',
+        'correo',
+        'rol'
+    ]">
+
+    <ng-template #actions let-row>
+
+        <button
+            pButton
+            icon="pi pi-pencil"
+            severity="secondary">
+        </button>
+
+        <button
+            pButton
+            icon="pi pi-trash"
+            severity="danger">
+        </button>
+
+    </ng-template>
+
+</app-data-table>
+    
+    </div>
+
+</app-page-content>
