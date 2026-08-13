@@ -1,508 +1,232 @@
-# RASSINI UI
+# Employee Portal UI
 
-Librería corporativa de componentes reutilizables para aplicaciones Angular de RASSINI.
+Portal corporativo de administración de empleados de Rassini.
+
+## Descripción
+
+Employee Portal UI es la aplicación frontend desarrollada en Angular para la administración de usuarios, roles, permisos, menús y acceso a aplicaciones corporativas.
+
+La aplicación consume los servicios expuestos por Employee Portal Backend y utiliza la librería corporativa `@rassini/rassini-ui` para reutilizar componentes, layouts, autenticación y servicios compartidos.
+
+---
+
+# Arquitectura
+
+```text
+employee-portal-ui
+        │
+        ▼
+@rassini/rassini-ui
+        │
+        ▼
+employee-portal (Spring Boot)
+        │
+        ▼
+MySQL
+```
 
 ---
 
 # Tecnologías
 
-* Angular 21
-* PrimeNG 21
-* PrimeIcons
-* TypeScript
-* SCSS
+- Angular 21
+- TypeScript
+- PrimeNG 21
+- SCSS
+- RxJS
+- @rassini/rassini-ui
 
 ---
 
-# Objetivo
+# Backend asociado
 
-Proporcionar una base estandarizada de componentes, servicios y modelos reutilizables para acelerar el desarrollo de aplicaciones corporativas.
+Proyecto:
 
----
+```text
+employee-portal
+```
 
-# Componentes Disponibles
+Base URL:
 
-## Layout
-
-* PageHeaderComponent
-* PageToolbarComponent
-* PageContentComponent
-
-## Data
-
-* DataTable
-
-## Dialogs
-
-* AppDialog
-* AppConfirmDialog
-
-## Feedback
-
-* AppToast
-* AppLoader
+```text
+http://localhost:8080/api/v1
+```
 
 ---
 
-# Servicios Disponibles
+# Autenticación
 
-* Toast
-* Loader
-* Dialog
+La aplicación utiliza JWT.
+
+Endpoints:
+
+```http
+POST /api/v1/auth/login
+GET  /api/v1/auth/me
+POST /api/v1/auth/refresh
+POST /api/v1/auth/reset-password
+```
+
+La autenticación, restauración de sesión, guards e interceptors son proporcionados por:
+
+```text
+@rassini/rassini-ui
+```
 
 ---
 
-# Modelos Disponibles
+# Módulos
 
-* Audit
-* Page
-* PageRequest
-* DataTableColumn
+## Dashboard
+
+Pantalla principal del portal.
+
+## Usuarios
+
+Administración de usuarios.
+
+Funciones:
+
+- Consultar usuarios
+- Crear usuarios
+- Editar usuarios
+- Eliminar usuarios
+- Asignar roles
+
+## Roles
+
+Administración de roles.
+
+## Permisos
+
+Administración de permisos.
+
+## Menús
+
+Administración de menús dinámicos.
+
+---
+
+# Estructura del proyecto
+
+```text
+src/
+└── app/
+    ├── features/
+    │   ├── dashboard/
+    │   ├── usuarios/
+    │   ├── roles/
+    │   ├── permisos/
+    │   └── menus/
+    │
+    ├── layout/
+    │
+    ├── pages/
+    │   └── auth/
+    │
+    └── shared/
+```
+
+---
+
+# Dependencias Corporativas
+
+La aplicación consume:
+
+```json
+{
+  "@rassini/rassini-ui": "file:../sakai-ng/dist/rassini-ui/rassini-rassini-ui-0.0.1.tgz"
+}
+```
+
+La librería proporciona:
+
+- Login corporativo
+- Guards
+- Interceptors
+- Manejo de sesión
+- Layout corporativo
+- Toasts
+- Confirm dialogs
+- Loaders
+- Componentes reutilizables
+
+La lógica de negocio permanece en Employee Portal UI.
 
 ---
 
 # Instalación
 
-## Construir librería
+Instalar dependencias:
 
 ```bash
-ng build rassini-ui
+npm install
 ```
 
-## Generar paquete
+---
+
+# Ejecución local
 
 ```bash
-npm pack ./dist/rassini-ui
+ng serve
 ```
 
-Genera:
+Aplicación:
 
-```txt
-rassini-ui-0.0.1.tgz
+```text
+http://localhost:4200
 ```
 
-## Instalar paquete
+---
+
+# Compilación
 
 ```bash
-npm install rassini-ui-0.0.1.tgz
+ng build
 ```
 
-Verificar:
+Salida:
 
-```json
-{
-  "dependencies": {
-    "rassini-ui": "file:rassini-ui-0.0.1.tgz"
-  }
-}
+```text
+dist/employee-portal-ui
 ```
 
 ---
 
-# Uso
+# Requisitos
 
-## Componentes
+Backend ejecutándose:
 
-```ts
-import {
-  PageHeaderComponent,
-  PageToolbarComponent,
-  PageContentComponent,
-  DataTable,
-  AppDialog,
-  AppToast,
-  AppConfirmDialog,
-  AppLoader
-} from 'rassini-ui';
+```text
+http://localhost:8080
 ```
 
-## Servicios
+Base de datos MySQL disponible.
 
-```ts
-import {
-  Toast,
-  Loader,
-  Dialog
-} from 'rassini-ui';
-```
-
-```ts
-constructor(
-  private readonly toast: Toast,
-  private readonly loader: Loader
-) {}
-```
+Variables de entorno configuradas para Employee Portal Backend.
 
 ---
 
-# Configuración Global
+# Convenciones
 
-Agregar una sola vez en el layout principal.
-
-```html
-<app-app-toast></app-app-toast>
-
-<app-app-confirm-dialog></app-app-confirm-dialog>
-
-<app-app-loader></app-app-loader>
-```
+- No duplicar lógica existente en `@rassini/rassini-ui`.
+- Toda autenticación debe consumir la librería corporativa.
+- Toda lógica de negocio debe permanecer en Employee Portal UI.
+- Los menús deben provenir del backend.
+- No utilizar datos mock en ambientes funcionales.
 
 ---
 
-# Loader
+# Estado del Proyecto
 
-Mostrar:
+✅ Integración con Employee Portal Backend
 
-```ts
-this.loader.show();
-```
+✅ Integración con @rassini/rassini-ui
 
-Ocultar:
+✅ Autenticación JWT
 
-```ts
-this.loader.hide();
-```
+✅ Menú dinámico basado en permisos
 
-Ejemplo:
-
-```ts
-this.loader.show();
-
-setTimeout(() => {
-    this.loader.hide();
-}, 3000);
-```
-
----
-
-# Toast
-
-Success:
-
-```ts
-this.toast.success('Registro guardado correctamente');
-```
-
-Error:
-
-```ts
-this.toast.error('Ocurrió un error');
-```
-
-Warning:
-
-```ts
-this.toast.warn('Advertencia');
-```
-
-Info:
-
-```ts
-this.toast.info('Información');
-```
-
----
-
-# Confirm Dialog
-
-```ts
-this.confirmationService.confirm({
-    header: 'Confirmación',
-    message: '¿Desea continuar?',
-    accept: () => {
-        this.toast.success('Operación ejecutada');
-    }
-});
-```
-
----
-
-# DataTable
-
-Componente reutilizable para mostrar información tabular con paginación, búsqueda global y acciones personalizadas.
-
----
-
-## Importación
-
-```ts
-import { DataTable } from 'rassini-ui';
-```
-
-```ts
-@Component({
-  imports: [
-    DataTable
-  ]
-})
-```
-
----
-
-## Configuración de Columnas
-
-```ts
-columns = [
-  {
-    field: 'id',
-    header: 'ID',
-    sortable: true
-  },
-  {
-    field: 'nombre',
-    header: 'Nombre',
-    sortable: true
-  },
-  {
-    field: 'correo',
-    header: 'Correo',
-    sortable: true
-  },
-  {
-    field: 'rol',
-    header: 'Rol'
-  },
-  {
-    field: 'actions',
-    header: 'Acciones',
-    type: 'actions'
-  }
-];
-```
-
----
-
-## Datos
-
-```ts
-usuarios = [
-  {
-    id: 1,
-    nombre: 'Juan Pérez',
-    correo: 'juan@example.com',
-    rol: 'Administrador'
-  },
-  {
-    id: 2,
-    nombre: 'María López',
-    correo: 'maria@example.com',
-    rol: 'Usuario'
-  }
-];
-```
-
----
-
-## Uso Básico
-
-```html
-<app-data-table
-    [columns]="columns"
-    [data]="usuarios">
-</app-data-table>
-```
-
----
-
-## Uso con Paginación
-
-```html
-<app-data-table
-    [columns]="columns"
-    [data]="usuarios"
-    [rows]="10"
-    [paginator]="true">
-</app-data-table>
-```
-
----
-
-## Uso con Loading
-
-```html
-<app-data-table
-    [columns]="columns"
-    [data]="usuarios"
-    [loading]="loading">
-</app-data-table>
-```
-
-```ts
-loading = true;
-
-setTimeout(() => {
-  this.loading = false;
-}, 3000);
-```
-
----
-
-## Uso con Búsqueda Global
-
-```html
-<app-data-table
-    [columns]="columns"
-    [data]="usuarios"
-    [globalFilterFields]="[
-      'id',
-      'nombre',
-      'correo',
-      'rol'
-    ]">
-</app-data-table>
-```
-
----
-
-## Uso con Acciones
-
-```html
-<app-data-table
-    [columns]="columns"
-    [data]="usuarios">
-
-    <ng-template #actions let-row>
-
-        <button
-            pButton
-            icon="pi pi-pencil"
-            severity="secondary">
-        </button>
-
-        <button
-            pButton
-            icon="pi pi-trash"
-            severity="danger">
-        </button>
-
-    </ng-template>
-
-</app-data-table>
-```
-
----
-
-## Tipo de Columnas Soportadas
-
-### Texto
-
-```ts
-{
-  field: 'nombre',
-  header: 'Nombre'
-}
-```
-
-### Acciones
-
-```ts
-{
-  field: 'actions',
-  header: 'Acciones',
-  type: 'actions'
-}
-```
-
----
-
-## Inputs Disponibles
-
-| Input              | Tipo              | Default      |
-| ------------------ | ----------------- | ------------ |
-| columns            | DataTableColumn[] | []           |
-| data               | any[]             | []           |
-| paginator          | boolean           | true         |
-| rows               | number            | 10           |
-| rowsPerPageOptions | number[]          | [5,10,20,50] |
-| globalFilterFields | string[]          | []           |
-| loading            | boolean           | false        |
-
----
-
-# Flujo de Publicación
-
-## 1. Construir
-
-```bash
-ng build rassini-ui
-```
-
-## 2. Empaquetar
-
-```bash
-npm pack ./dist/rassini-ui
-```
-
-## 3. Instalar nueva versión
-
-```bash
-npm install rassini-ui-0.0.1.tgz
-```
-
----
-
-# Versionamiento
-
-## v0.0.1
-
-### Componentes
-
-* PageHeaderComponent
-* PageToolbarComponent
-* PageContentComponent
-* DataTable
-* AppDialog
-* AppToast
-* AppConfirmDialog
-* AppLoader
-
-### Servicios
-
-* Toast
-* Loader
-* Dialog
-
-### Modelos
-
-* Audit
-* Page
-* PageRequest
-* DataTableColumn
-
----
-
-# Roadmap
-
-## v0.2.0
-
-* DataTable Image Column
-* DataTable Badge Column
-* DataTable Currency Column
-* DataTable Date Column
-
-## v0.3.0
-
-* Confirm Service
-* Dialog Service avanzado
-* Theme Service
-
-## v1.0.0
-
-* Publicación corporativa
-* Documentación completa
-* Manual de implementación
-* Versionado estable
-
----
-
-# Estado
-
-✅ Librería funcional
-
-✅ Componentes reutilizables operativos
-
-✅ Empaquetado funcional
-
-✅ Consumo validado en aplicación Angular
+✅ Arquitectura desacoplada de la librería
 
 🚧 Evolución continua
