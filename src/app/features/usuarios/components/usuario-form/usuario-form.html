@@ -1,54 +1,52 @@
-<form
-    [formGroup]="form"
-    class="usuario-form">
+<form [formGroup]="form" class="usuario-form flex flex-col gap-4">
+  <div class="field flex flex-col gap-1">
+    <label for="username" class="font-medium">Nombre de Usuario</label>
+    <input id="username" pInputText formControlName="username" placeholder="Ingrese nombre de usuario" />
+    <small class="text-red-500" *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['required']">
+      El nombre de usuario es obligatorio.
+    </small>
+  </div>
 
-    <div class="field">
+  <div class="field flex flex-col gap-1">
+    <label for="email" class="font-medium">Correo Electrónico</label>
+    <input id="email" pInputText formControlName="email" placeholder="correo@ejemplo.com" />
+    <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['required']">
+      El correo electrónico es obligatorio.
+    </small>
+    <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['email']">
+      Ingrese un formato de correo electrónico válido.
+    </small>
+  </div>
 
-        <label>Nombre</label>
+  <div class="field flex flex-col gap-1" *ngIf="!user">
+    <label for="password" class="font-medium">Contraseña</label>
+    <input id="password" pInputText type="password" formControlName="password" placeholder="Contraseña de al menos 8 caracteres" />
+    <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['required']">
+      La contraseña es obligatoria para nuevos usuarios.
+    </small>
+    <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['minlength']">
+      La contraseña debe tener al menos 8 caracteres.
+    </small>
+  </div>
 
-        <input
-            pInputText
-            formControlName="nombre">
+  <div class="field flex flex-col gap-1">
+    <label for="roles" class="font-medium">Roles</label>
+    <p-multiSelect 
+      id="roles"
+      formControlName="roleIds" 
+      [options]="rolesList" 
+      optionLabel="name" 
+      optionValue="id" 
+      placeholder="Seleccione roles"
+      display="chip">
+    </p-multiSelect>
+    <small class="text-red-500" *ngIf="form.get('roleIds')?.touched && form.get('roleIds')?.errors?.['required']">
+      Debe asignar al menos un rol.
+    </small>
+  </div>
 
-    </div>
-
-    <div class="field">
-
-        <label>Correo</label>
-
-        <input
-            pInputText
-            formControlName="correo">
-
-    </div>
-
-    <div class="field">
-
-        <label>Rol</label>
-
-        <input
-            pInputText
-            formControlName="rol">
-
-    </div>
-
-    <div class="actions">
-
-        <button
-            pButton
-            type="button"
-            label="Cancelar"
-            severity="secondary"
-            (click)="cancel.emit()">
-        </button>
-
-        <button
-            pButton
-            type="button"
-            label="Guardar"
-            (click)="guardar()">
-        </button>
-
-    </div>
-
+  <div class="actions flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
+    <button pButton type="button" label="Guardar" (click)="guardar()"></button>
+  </div>
 </form>

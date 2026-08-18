@@ -1,76 +1,58 @@
 <app-page-header
     title="Usuarios"
-    subtitle="Administración de usuarios del sistema">
+    subtitle="Administración y gestión de usuarios del portal">
 </app-page-header>
 
-
-
-
 <app-page-toolbar>
-
     <button
-    pButton
-    label="Nuevo Usuario"
-    (click)="showDialog()">
+        pButton
+        label="Nuevo Usuario"
+        icon="pi pi-plus"
+        (click)="showCreateDialog()">
     </button>
-    <button
-    pButton
-    label="Buscar Usuario"
-    icon="pi pi-search"
-    severity="secondary">
-    </button>
+</app-page-toolbar>
 
-    <app-app-dialog
+<app-page-content>
+    <div class="usuarios-container">
+        <app-data-table
+            [columns]="columns"
+            [data]="usuarios"
+            [loading]="loading"
+            [rows]="10"
+            [globalFilterFields]="['id', 'username', 'email', 'enabledText', 'rolesText']">
+            
+            <ng-template #actions let-row>
+                <button
+                    pButton
+                    icon="pi pi-pencil"
+                    class="p-button-text"
+                    pTooltip="Editar Usuario"
+                    tooltipPosition="top"
+                    (click)="showEditDialog(row)">
+                </button>
+                
+                <button
+                    pButton
+                    [icon]="row.enabled ? 'pi pi-ban' : 'pi pi-check'"
+                    [severity]="row.enabled ? 'warn' : 'success'"
+                    class="p-button-text"
+                    [pTooltip]="row.enabled ? 'Desactivar Usuario' : 'Activar Usuario'"
+                    tooltipPosition="top"
+                    (click)="toggleStatus(row)">
+                </button>
+            </ng-template>
+        </app-data-table>
+    </div>
+</app-page-content>
+
+<app-app-dialog
     [(visible)]="dialogVisible"
-    title="Nuevo Usuario">
-
+    [title]="selectedUser ? 'Editar Usuario' : 'Nuevo Usuario'">
+    
     <app-usuario-form
+        *ngIf="dialogVisible"
+        [user]="selectedUser"
         (save)="guardarUsuario($event)"
         (cancel)="dialogVisible = false">
     </app-usuario-form>
-
 </app-app-dialog>
-
-</app-page-toolbar>
-
-
-<app-page-content>
-
-    <div class="usuarios-container">
-
-        Área de trabajo de Usuarios
-
-    <app-data-table
-    [columns]="columns"
-    [data]="usuarios"
-    (rowsSelected)="onSelectionChange($event)"
-    [loading]="loading"
-    [rows]="3"
-    [globalFilterFields]="[
-        'id',
-        'nombre',
-        'correo',
-        'rol'
-    ]">
-
-    <ng-template #actions let-row>
-
-        <button
-            pButton
-            icon="pi pi-pencil"
-            severity="secondary">
-        </button>
-
-        <button
-            pButton
-            icon="pi pi-trash"
-            severity="danger">
-        </button>
-
-    </ng-template>
-
-</app-data-table>
-    
-    </div>
-
-</app-page-content>
