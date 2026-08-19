@@ -20,6 +20,7 @@ export class UsuarioService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiBaseUrl}/users`;
   private readonly rolesUrl = `${environment.apiBaseUrl}/roles`;
+  private readonly authUrl = `${environment.apiBaseUrl}/auth`;
 
   getUsers(): Observable<UserResponse[]> {
     return this.http.get<ApiResponse<UserResponse[]>>(this.apiUrl).pipe(
@@ -69,5 +70,16 @@ export class UsuarioService {
     return this.http.put<ApiResponse<UserResponse>>(`${this.apiUrl}/${id}/roles`, request).pipe(
       map(response => response.data)
     );
+  }
+
+  /**
+   * Reseteo de contraseña por administrador.
+   * Llama a POST /api/v1/auth/reset-password con {username, newPassword}.
+   * El admin no conoce ni retiene la contraseña generada.
+   * @param username - Username del usuario a resetear
+   * @param newPassword - Contraseña temporal generada aleatoriamente en frontend
+   */
+  adminResetPassword(username: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.authUrl}/reset-password`, { username, newPassword });
   }
 }

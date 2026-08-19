@@ -5,6 +5,7 @@
 
 <app-page-toolbar>
     <button
+        *ngIf="canCreate"
         pButton
         label="Nuevo Usuario"
         icon="pi pi-plus"
@@ -22,7 +23,9 @@
             [globalFilterFields]="['id', 'username', 'email', 'enabledText', 'rolesText']">
             
             <ng-template #actions let-row>
+                <!-- Editar — requiere USER_UPDATE -->
                 <button
+                    *ngIf="canUpdate"
                     pButton
                     icon="pi pi-pencil"
                     class="p-button-text"
@@ -31,7 +34,21 @@
                     (click)="showEditDialog(row)">
                 </button>
                 
+                <!-- Resetear contraseña — requiere USER_PASSWORD_RESET -->
                 <button
+                    *ngIf="canResetPassword"
+                    pButton
+                    icon="pi pi-lock"
+                    severity="warn"
+                    class="p-button-text"
+                    pTooltip="Resetear Contraseña"
+                    tooltipPosition="top"
+                    (click)="resetPassword(row)">
+                </button>
+
+                <!-- Activar/Desactivar — requiere USER_DELETE -->
+                <button
+                    *ngIf="canDelete"
                     pButton
                     [icon]="row.enabled ? 'pi pi-ban' : 'pi pi-check'"
                     [severity]="row.enabled ? 'warn' : 'success'"
@@ -56,4 +73,33 @@
         (save)="guardarUsuario($event)"
         (cancel)="dialogVisible = false">
     </app-usuario-form>
+</app-app-dialog>
+
+<!-- Modal para mostrar la contraseña temporal generada -->
+<app-app-dialog
+    [(visible)]="tempPasswordVisible"
+    title="✅ Contraseña reseteada"
+    width="450px">
+    
+    <div class="flex flex-col gap-4 p-4">
+        
+        <div class="flex flex-col">
+            <span class="text-color-secondary font-semibold">Usuario:</span>
+            <span class="text-xl font-bold">{{ selectedUser?.username }}</span>
+        </div>
+
+        <div class="flex flex-col mt-4">
+            <span class="text-color-secondary font-semibold">Contraseña temporal:</span>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-2xl font-mono font-bold select-all tracking-wider text-primary">{{ generatedTempPassword }}</span>
+            </div>
+            <div class="mt-4">
+                <button pButton label="COPIAR" icon="pi pi-copy" class="w-full sm:w-auto" (click)="copyTempPassword()"></button>
+            </div>
+        </div>
+        
+        <p class="m-0 text-sm mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            Esta contraseña debe ser cambiada por el usuario al iniciar sesión.
+        </p>
+    </div>
 </app-app-dialog>

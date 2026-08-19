@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { RoleService } from '../../services/role.service';
 import { RoleResponse, RoleRequest } from '../../models/role.model';
+import { PermissionService } from '../../../../shared/services/permission.service';
 
 @Component({
   selector: 'app-roles',
@@ -39,6 +40,12 @@ export class Roles implements OnInit {
   private readonly toast = inject(Toast);
   private readonly loader = inject(Loader);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly permissionService = inject(PermissionService);
+
+  // Permisos visuales calculados desde auth.permissions()
+  get canCreate(): boolean { return this.permissionService.hasPermission('ROLE_CREATE'); }
+  get canUpdate(): boolean { return this.permissionService.hasPermission('ROLE_UPDATE'); }
+  get canDelete(): boolean { return this.permissionService.hasPermission('ROLE_DELETE'); }
 
   loading = true;
   dialogVisible = false;

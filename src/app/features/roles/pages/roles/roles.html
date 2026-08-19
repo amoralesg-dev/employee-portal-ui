@@ -5,6 +5,7 @@
 
 <app-page-toolbar>
     <button
+        *ngIf="canCreate"
         pButton
         label="Nuevo Rol"
         icon="pi pi-plus"
@@ -23,6 +24,7 @@
             
             <ng-template #actions let-row>
                 <button
+                    *ngIf="canUpdate"
                     pButton
                     icon="pi pi-pencil"
                     class="p-button-text"
@@ -32,6 +34,7 @@
                 </button>
                 
                 <button
+                    *ngIf="canDelete"
                     pButton
                     icon="pi pi-trash"
                     severity="danger"

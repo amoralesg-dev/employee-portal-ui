@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { UsuarioService } from '../../services/usuario.service';
 import { UserResponse, UserRequest, UserUpdateRequest } from '../../models/usuario.model';
+import { PermissionService } from '../../../../shared/services/permission.service';
 
 @Component({
   selector: 'app-usuarios',
@@ -39,9 +40,18 @@ export class Usuarios implements OnInit {
   private readonly toast = inject(Toast);
   private readonly loader = inject(Loader);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly permissionService = inject(PermissionService);
+
+  // Permisos visuales calculados desde auth.permissions()
+  get canCreate(): boolean { return this.permissionService.hasPermission('USER_CREATE'); }
+  get canUpdate(): boolean { return this.permissionService.hasPermission('USER_UPDATE'); }
+  get canDelete(): boolean { return this.permissionService.hasPermission('USER_DELETE'); }
+  get canResetPassword(): boolean { return this.permissionService.hasPermission('USER_PASSWORD_RESET'); }
 
   loading = true;
   dialogVisible = false;
+  tempPasswordVisible = false;
+  generatedTempPassword = '';
   selectedUser: UserResponse | null = null;
   usuarios: UserResponse[] = [];
 
@@ -55,6 +65,10 @@ export class Usuarios implements OnInit {
   ];
 
   ngOnInit(): void {
+    console.log('--- Permisos cargados en runtime (Usuarios Component) ---');
+    console.log('Todos los permisos:', this.permissionService.getPermissions());
+    console.log('Tiene USER_PASSWORD_RESET?', this.canResetPassword);
+    
     this.loadUsers();
   }
 
@@ -180,5 +194,61 @@ export class Usuarios implements OnInit {
         });
       }
     });
+  }
+
+  /**
+   * Reseteo de contraseña por administrador.
+   * Genera una contraseña temporal aleatoria, la envía al backend y muestra confirmación.
+   * El administrador NO conoce la contraseña final — solo confirma la acción.
+   */
+  resetPassword(user: UserResponse): void {
+    this.selectedUser = user;
+    this.confirmationService.confirm({
+      header: 'Resetear Contraseña',
+      message: `¿Está seguro de que desea resetear la contraseña del usuario "${user.username}"? Se generará una contraseña temporal aleatoria.`,
+      acceptLabel: 'Resetear',
+      rejectLabel: 'Cancelar',
+      acceptButtonProps: { severity: 'warn' },
+      accept: () => {
+        const tempPassword = this.generateTemporaryPassword();
+        this.loader.show();
+        this.usuarioService.adminResetPassword(user.username, tempPassword).subscribe({
+          next: () => {
+            this.loader.hide();
+            this.generatedTempPassword = tempPassword;
+            this.tempPasswordVisible = true;
+          },
+          error: (err) => {
+            this.loader.hide();
+            this.toast.error('Error al resetear la contraseña del usuario');
+            console.error(err);
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Copia la contraseña temporal al portapapeles.
+   */
+  copyTempPassword(): void {
+    navigator.clipboard.writeText(this.generatedTempPassword).then(() => {
+      this.toast.success('Contraseña copiada al portapapeles');
+    }).catch(err => {
+      console.error('Error copying text: ', err);
+      this.toast.error('No se pudo copiar la contraseña');
+    });
+  }
+
+
+  /**
+   * Genera una contraseña temporal segura aleatoria (12 caracteres).
+   * La contraseña no se almacena ni se muestra al administrador después de enviarse.
+   */
+  private generateTemporaryPassword(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+    const array = new Uint32Array(12);
+    crypto.getRandomValues(array);
+    return Array.from(array, (val) => chars[val % chars.length]).join('');
   }
 }

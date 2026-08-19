@@ -22,6 +22,7 @@ import { Monitoreo } from './app/features/monitoreo/pages/monitoreo/monitoreo';
 import { Configuracion } from './app/features/configuracion/pages/configuracion/configuracion';
 
 import { authGuard } from '@rassini/rassini-ui';
+import { permissionGuard } from './app/shared/guards/permission.guard';
 
 export const appRoutes: Routes = [
     {
@@ -36,12 +37,14 @@ export const appRoutes: Routes = [
 
             {
                 path: 'usuarios',
-                component: Usuarios
+                component: Usuarios,
+                canActivate: [permissionGuard('USER_READ')]
             },
 
             {
                 path: 'roles',
-                component: Roles
+                component: Roles,
+                canActivate: [permissionGuard('ROLE_READ')]
             },
 
             {
