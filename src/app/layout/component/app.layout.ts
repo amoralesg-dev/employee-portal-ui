@@ -94,31 +94,19 @@ export class AppLayout {
 });
     
 
-    menu = [
-        {
-            label: 'Principal',
-            items: [
-                {
-                    label: 'Dashboard',
-                    icon: 'pi pi-home',
-                    routerLink: '/'
-                }
-            ]
-        },
-        {
-            label: 'Operación',
-            items: [
-                {
-                    label: 'Usuarios',
-                    icon: 'pi pi-users',
-                    routerLink: '/usuarios'
-                },
-                {
-                    label: 'Pagos',
-                    icon: 'pi pi-credit-card',
-                    routerLink: '/pagos'
-                }
-            ]
-        }
-    ];
+    get menu() {
+        const rawMenus = this.auth.menus() || [];
+        return rawMenus.map((menu: any) => this.transformMenu(menu));
+    }
+
+    private transformMenu(menu: any): any {
+        return {
+            label: menu.label,
+            icon: menu.icon,
+            routerLink: menu.route ? [menu.route] : null,
+            items: menu.children && menu.children.length > 0 
+                ? menu.children.map((child: any) => this.transformMenu(child)) 
+                : null
+        };
+    }
 }

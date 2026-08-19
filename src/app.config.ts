@@ -1,10 +1,10 @@
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 
-import { RassiniPreset, provideRassiniAuth } from '@rassini/rassini-ui';
+import { RassiniPreset, provideRassiniAuth, authInterceptor } from '@rassini/rassini-ui';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 
@@ -15,7 +15,10 @@ import { environment } from './environments/environment';
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
-        provideHttpClient(withFetch()),
+        provideHttpClient(
+            withFetch(),
+            withInterceptors([authInterceptor])
+        ),
         provideZonelessChangeDetection(),
         provideRassiniAuth({
             loginUrl: `${environment.apiBaseUrl}/auth/login`,

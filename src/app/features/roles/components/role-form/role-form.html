@@ -1,0 +1,59 @@
+<form [formGroup]="form" class="role-form flex flex-col gap-4">
+  <div class="field flex flex-col gap-1">
+    <label for="code" class="font-medium">Código del Rol</label>
+    <input id="code" pInputText formControlName="code" placeholder="Ej. IAM_ADMIN" />
+    <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">
+      El código del rol es obligatorio.
+    </small>
+  </div>
+
+  <div class="field flex flex-col gap-1">
+    <label for="name" class="font-medium">Nombre del Rol</label>
+    <input id="name" pInputText formControlName="name" placeholder="Ej. Administrador de IAM" />
+    <small class="text-red-500" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">
+      El nombre del rol es obligatorio.
+    </small>
+  </div>
+
+  <div class="field flex flex-col gap-1">
+    <label for="description" class="font-medium">Descripción</label>
+    <input id="description" pInputText formControlName="description" placeholder="Ingrese una descripción" />
+  </div>
+
+  <div class="field flex flex-col gap-1">
+    <label class="font-medium">Asignación de Permisos</label>
+    <p-pickList 
+      [source]="permissionsAvailable" 
+      [target]="permissionsAssigned" 
+      sourceHeader="Permisos Disponibles" 
+      targetHeader="Permisos Asignados" 
+      [dragdrop]="true" 
+      [responsive]="true" 
+      [showSourceControls]="false" 
+      [showTargetControls]="false"
+      [sourceStyle]="{ height: '18rem' }" 
+      [targetStyle]="{ height: '18rem' }"
+      filterBy="name,description" 
+      sourceFilterPlaceholder="Buscar por nombre..." 
+      targetFilterPlaceholder="Buscar por nombre..."
+      (onMoveToTarget)="onMove()"
+      (onMoveToSource)="onMove()"
+      (onMoveAllToTarget)="onMove()"
+      (onMoveAllToSource)="onMove()">
+      <ng-template let-perm #item>
+        <div class="flex flex-col gap-0.5 p-1">
+          <span class="font-semibold text-sm">{{ perm.name }}</span>
+          <span class="text-xs text-gray-500" *ngIf="perm.description">{{ perm.description }}</span>
+        </div>
+      </ng-template>
+    </p-pickList>
+    <small class="text-red-500" *ngIf="form.get('permissionIds')?.touched && form.get('permissionIds')?.errors?.['required']">
+      Debe asignar al menos un permiso.
+    </small>
+  </div>
+
+  <div class="actions flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
+    <button pButton type="button" label="Guardar" (click)="guardar()"></button>
+  </div>
+</form>

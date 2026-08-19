@@ -30,16 +30,32 @@
   </div>
 
   <div class="field flex flex-col gap-1">
-    <label for="roles" class="font-medium">Roles</label>
-    <p-multiSelect 
-      id="roles"
-      formControlName="roleIds" 
-      [options]="rolesList" 
-      optionLabel="name" 
-      optionValue="id" 
-      placeholder="Seleccione roles"
-      display="chip">
-    </p-multiSelect>
+    <label class="font-medium">Asignación de Roles</label>
+    <p-pickList 
+      [source]="rolesAvailable" 
+      [target]="rolesAssigned" 
+      sourceHeader="Roles Disponibles" 
+      targetHeader="Roles Asignados" 
+      [dragdrop]="true" 
+      [responsive]="true" 
+      [showSourceControls]="false" 
+      [showTargetControls]="false"
+      [sourceStyle]="{ height: '18rem' }" 
+      [targetStyle]="{ height: '18rem' }"
+      filterBy="name,description" 
+      sourceFilterPlaceholder="Buscar por nombre..." 
+      targetFilterPlaceholder="Buscar por nombre..."
+      (onMoveToTarget)="onMove()"
+      (onMoveToSource)="onMove()"
+      (onMoveAllToTarget)="onMove()"
+      (onMoveAllToSource)="onMove()">
+      <ng-template let-rol #item>
+        <div class="flex flex-col gap-0.5 p-1">
+          <span class="font-semibold text-sm">{{ rol.name }}</span>
+          <span class="text-xs text-gray-500" *ngIf="rol.description">{{ rol.description }}</span>
+        </div>
+      </ng-template>
+    </p-pickList>
     <small class="text-red-500" *ngIf="form.get('roleIds')?.touched && form.get('roleIds')?.errors?.['required']">
       Debe asignar al menos un rol.
     </small>

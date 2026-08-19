@@ -11,6 +11,7 @@ import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 
 import { Usuarios } from './app/features/usuarios/pages/usuarios/usuarios';
+import { Roles } from './app/features/roles/pages/roles/roles';
 
 import { Pagos } from './app/features/pagos/pages/pagos/pagos';
 
@@ -36,6 +37,11 @@ export const appRoutes: Routes = [
             {
                 path: 'usuarios',
                 component: Usuarios
+            },
+
+            {
+                path: 'roles',
+                component: Roles
             },
 
             {

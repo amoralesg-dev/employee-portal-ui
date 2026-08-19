@@ -15,7 +15,7 @@ import {
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { PickListModule } from 'primeng/picklist';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { RoleResponse, UserResponse } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario.service';
@@ -28,7 +28,7 @@ import { UsuarioService } from '../../services/usuario.service';
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    MultiSelectModule,
+    PickListModule,
     ToggleButtonModule
   ],
   templateUrl: './usuario-form.html',
@@ -43,7 +43,8 @@ export class UsuarioForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   form: FormGroup;
-  rolesList: RoleResponse[] = [];
+  rolesAvailable: RoleResponse[] = [];
+  rolesAssigned: RoleResponse[] = [];
 
   constructor() {
     this.form = this.fb.group({
@@ -58,14 +59,13 @@ export class UsuarioForm implements OnInit {
     // Load roles list from backend
     this.usuarioService.getRoles().subscribe({
       next: (roles) => {
-        this.rolesList = roles;
-        this.initializeForm();
+        this.initializeRoles(roles);
       },
       error: (err) => console.error('Error loading roles list', err)
     });
   }
 
-  private initializeForm(): void {
+  private initializeRoles(allRoles: RoleResponse[]): void {
     if (this.user) {
       // Edit mode: set values, email and username
       // Remove password validator since it is optional on update
@@ -74,6 +74,10 @@ export class UsuarioForm implements OnInit {
       
       const userRoleIds = this.user.roles ? this.user.roles.map(r => r.id) : [];
 
+      // Filter assigned and available
+      this.rolesAssigned = allRoles.filter(r => userRoleIds.includes(r.id));
+      this.rolesAvailable = allRoles.filter(r => !userRoleIds.includes(r.id));
+
       this.form.patchValue({
         username: this.user.username,
         email: this.user.email,
@@ -81,10 +85,21 @@ export class UsuarioForm implements OnInit {
         roleIds: userRoleIds
       });
     } else {
-      // Create mode: password is required
+      // Create mode: password is required, all roles are available
+      this.rolesAvailable = [...allRoles];
+      this.rolesAssigned = [];
       this.form.get('password')?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(255)]);
       this.form.get('password')?.updateValueAndValidity();
+      this.form.patchValue({
+        roleIds: []
+      });
     }
+  }
+
+  onMove(): void {
+    const assignedIds = this.rolesAssigned.map(r => r.id);
+    this.form.get('roleIds')?.setValue(assignedIds);
+    this.form.get('roleIds')?.markAsTouched();
   }
 
   guardar(): void {

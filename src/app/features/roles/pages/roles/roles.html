@@ -1,44 +1,44 @@
 <app-page-header
-    title="Usuarios"
-    subtitle="Administración y gestión de usuarios del portal">
+    title="Roles"
+    subtitle="Administración y gestión de roles y permisos del sistema">
 </app-page-header>
 
 <app-page-toolbar>
     <button
         pButton
-        label="Nuevo Usuario"
+        label="Nuevo Rol"
         icon="pi pi-plus"
         (click)="showCreateDialog()">
     </button>
 </app-page-toolbar>
 
 <app-page-content>
-    <div class="usuarios-container">
+    <div class="roles-container">
         <app-data-table
             [columns]="columns"
-            [data]="usuarios"
+            [data]="roles"
             [loading]="loading"
             [rows]="10"
-            [globalFilterFields]="['id', 'username', 'email', 'enabledText', 'rolesText']">
+            [globalFilterFields]="['id', 'code', 'name', 'description', 'permissionsText']">
             
             <ng-template #actions let-row>
                 <button
                     pButton
                     icon="pi pi-pencil"
                     class="p-button-text"
-                    pTooltip="Editar Usuario"
+                    pTooltip="Editar Rol"
                     tooltipPosition="top"
                     (click)="showEditDialog(row)">
                 </button>
                 
                 <button
                     pButton
-                    [icon]="row.enabled ? 'pi pi-ban' : 'pi pi-check'"
-                    [severity]="row.enabled ? 'warn' : 'success'"
+                    icon="pi pi-trash"
+                    severity="danger"
                     class="p-button-text"
-                    [pTooltip]="row.enabled ? 'Desactivar Usuario' : 'Activar Usuario'"
+                    pTooltip="Eliminar Rol"
                     tooltipPosition="top"
-                    (click)="toggleStatus(row)">
+                    (click)="eliminarRol(row)">
                 </button>
             </ng-template>
         </app-data-table>
@@ -47,13 +47,13 @@
 
 <app-app-dialog
     [(visible)]="dialogVisible"
-    [title]="selectedUser ? 'Editar Usuario' : 'Nuevo Usuario'"
+    [title]="selectedRole ? 'Editar Rol' : 'Nuevo Rol'"
     width="800px">
     
-    <app-usuario-form
+    <app-role-form
         *ngIf="dialogVisible"
-        [user]="selectedUser"
-        (save)="guardarUsuario($event)"
+        [role]="selectedRole"
+        (save)="guardarRol($event)"
         (cancel)="dialogVisible = false">
-    </app-usuario-form>
+    </app-role-form>
 </app-app-dialog>
