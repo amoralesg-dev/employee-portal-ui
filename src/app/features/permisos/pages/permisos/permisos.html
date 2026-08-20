@@ -1,0 +1,62 @@
+<app-page-header
+    title="Permisos"
+    subtitle="Administración y gestión de permisos del sistema">
+</app-page-header>
+
+<app-page-toolbar>
+    <button
+        *ngIf="canCreate"
+        pButton
+        label="Nuevo Permiso"
+        icon="pi pi-plus"
+        (click)="showCreateDialog()">
+    </button>
+</app-page-toolbar>
+
+<app-page-content>
+    <div class="permisos-container">
+        <app-data-table
+            [columns]="columns"
+            [data]="permissions"
+            [loading]="loading"
+            [rows]="10"
+            [globalFilterFields]="['id', 'code', 'description']">
+            
+            <ng-template #actions let-row>
+                <button
+                    *ngIf="canUpdate"
+                    pButton
+                    icon="pi pi-pencil"
+                    class="p-button-text"
+                    pTooltip="Editar Permiso"
+                    tooltipPosition="top"
+                    (click)="showEditDialog(row)">
+                </button>
+                
+                <button
+                    *ngIf="canDelete"
+                    pButton
+                    icon="pi pi-trash"
+                    severity="danger"
+                    class="p-button-text"
+                    pTooltip="Eliminar Permiso"
+                    tooltipPosition="top"
+                    (click)="eliminarPermiso(row)">
+                </button>
+            </ng-template>
+        </app-data-table>
+    </div>
+</app-page-content>
+
+<app-app-dialog
+    [(visible)]="dialogVisible"
+    [title]="selectedPermission ? 'Editar Permiso' : 'Nuevo Permiso'"
+    width="600px">
+    
+    <app-permiso-form
+        *ngIf="dialogVisible"
+        [permission]="selectedPermission"
+        (save)="guardarPermiso($event)"
+        (cancel)="dialogVisible = false">
+    </app-permiso-form>
+</app-app-dialog>

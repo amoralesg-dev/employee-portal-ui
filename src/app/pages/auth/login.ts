@@ -44,8 +44,6 @@ import { Router } from '@angular/router';
     template: `
         <div class="login-wrapper">
             <rui-login
-                [loading]="loading"
-                [errorMessage]="errorMessage"
                 (loginEvent)="onLogin($event)">
             </rui-login>
 
@@ -83,6 +81,6 @@ export class Login {
         // <rui-login> de la librería rassini-ui, 
         // el cual subscribe a this.auth.login(...) directamente.
         // No es necesario realizar doble suscripción ni doble navegación aquí.
-        this.loading = true;
+        console.log('Login action delegated to rui-login component');
     }
 }

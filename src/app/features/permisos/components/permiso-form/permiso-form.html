@@ -1,0 +1,19 @@
+<form [formGroup]="form" class="permiso-form flex flex-col gap-4">
+  <div class="field flex flex-col gap-1">
+    <label for="code" class="font-medium">Código del Permiso</label>
+    <input id="code" pInputText formControlName="code" placeholder="Ej. PERMISSION_CREATE" />
+    <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">
+      El código del permiso es obligatorio.
+    </small>
+  </div>
+
+  <div class="field flex flex-col gap-1">
+    <label for="description" class="font-medium">Descripción</label>
+    <input id="description" pInputText formControlName="description" placeholder="Ingrese una descripción" />
+  </div>
+
+  <div class="actions flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
+    <button pButton type="button" label="Guardar" (click)="guardar()"></button>
+  </div>
+</form>

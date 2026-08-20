@@ -32,6 +32,11 @@ export class NavigationService {
                         routerLink: ['/roles']
                     },
                     {
+                        label: 'Permisos',
+                        icon: 'pi pi-lock',
+                        routerLink: ['/permisos']
+                    },
+                    {
                         label: 'Pagos',
                         icon: 'pi pi-credit-card',
                         routerLink: ['/pagos']

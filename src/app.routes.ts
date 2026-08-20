@@ -51,6 +51,13 @@ export const appRoutes: Routes = [
             },
 
             {
+                path: 'permisos',
+                loadChildren: () =>
+                    import('./app/features/permisos/permisos.routes'),
+                canActivate: [permissionGuard('PERMISSION_READ')]
+            },
+
+            {
                 path: 'pagos',
                 component: Pagos
             },
