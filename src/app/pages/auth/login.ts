@@ -78,32 +78,11 @@ export class Login {
         username: string;
         password: string;
     }): void {
-
+        // La lógica real de login, mostrar loading y redireccionar 
+        // ya se maneja de manera asíncrona dentro del componente 
+        // <rui-login> de la librería rassini-ui, 
+        // el cual subscribe a this.auth.login(...) directamente.
+        // No es necesario realizar doble suscripción ni doble navegación aquí.
         this.loading = true;
-
-        Promise.resolve().then(() => {
-
-            const authenticated = this.auth.login(
-                event.username,
-                event.password
-            );
-
-            this.loading = false;
-
-            if (authenticated) {
-
-                this.errorMessage = '';
-
-                this.router.navigate(['/']);
-
-            } else {
-
-                this.errorMessage =
-                    'Usuario o contraseña incorrectos';
-
-            }
-
-        });
-
     }
 }

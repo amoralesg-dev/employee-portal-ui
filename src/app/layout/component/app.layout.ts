@@ -100,9 +100,20 @@ export class AppLayout {
     }
 
     private transformMenu(menu: any): any {
+        // Mapeo de iconos tipo Material (del backend) a PrimeIcons
+        const iconMap: { [key: string]: string } = {
+            'home': 'pi pi-home',
+            'admin_panel_settings': 'pi pi-cog',
+            'people': 'pi pi-users',
+            'security': 'pi pi-shield',
+            'lock': 'pi pi-lock'
+        };
+
+        const primeIcon = iconMap[menu.icon] || (menu.icon?.startsWith('pi ') ? menu.icon : 'pi pi-' + menu.icon);
+
         return {
             label: menu.label,
-            icon: menu.icon,
+            icon: primeIcon,
             routerLink: menu.route ? [menu.route] : null,
             items: menu.children && menu.children.length > 0 
                 ? menu.children.map((child: any) => this.transformMenu(child)) 

@@ -23,12 +23,15 @@ import { Configuracion } from './app/features/configuracion/pages/configuracion/
 
 import { authGuard } from '@rassini/rassini-ui';
 import { permissionGuard } from './app/shared/guards/permission.guard';
+import { requirePasswordChangeGuard } from './app/shared/guards/require-password-change.guard';
+import { forcePasswordChangeGuard } from './app/shared/guards/force-password-change.guard';
+import { ChangePasswordRequired } from './app/pages/auth/change-password-required';
 
 export const appRoutes: Routes = [
     {
         path: '',
         component: AppLayout,
-        canActivate: [authGuard],
+        canActivate: [authGuard, forcePasswordChangeGuard],
         children: [
             {
                 path: '',
@@ -100,6 +103,12 @@ export const appRoutes: Routes = [
         path: 'auth',
         loadChildren: () =>
             import('./app/pages/auth/auth.routes')
+    },
+
+    {
+        path: 'change-password-required',
+        component: ChangePasswordRequired,
+        canActivate: [authGuard, requirePasswordChangeGuard]
     },
 
     {
