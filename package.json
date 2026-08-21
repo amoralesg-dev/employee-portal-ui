@@ -20,7 +20,7 @@
     "@angular/platform-browser-dynamic": "^21",
     "@angular/router": "^21",
     "@primeuix/themes": "^2.0.0",
-    "@rassini/rassini-ui": "file:rassini-rassini-ui-0.0.5.tgz",
+    "@rassini/rassini-ui": "file:rassini-rassini-ui-0.0.6.tgz",
     "@tailwindcss/postcss": "^4.1.11",
     "ajv": "^8.20.0",
     "chart.js": "4.4.2",
