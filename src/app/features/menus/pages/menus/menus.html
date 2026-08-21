@@ -1,0 +1,108 @@
+<app-page-header
+    title="Menús"
+    subtitle="Administración jerárquica de menús del sistema">
+</app-page-header>
+
+<app-page-toolbar>
+    <button
+        *ngIf="canCreate"
+        pButton
+        label="Nuevo Menú"
+        icon="pi pi-plus"
+        (click)="showCreateDialog()">
+    </button>
+</app-page-toolbar>
+
+<app-page-content>
+    <div class="menus-container card">
+        <p-treeTable 
+            #tt
+            [value]="menuTree" 
+            [columns]="['label', 'code', 'route', 'icon', 'orderIndex']"
+            [paginator]="false"
+            [loading]="loading"
+            [globalFilterFields]="['label', 'code', 'route']">
+            
+            <ng-template pTemplate="caption">
+                <div class="flex justify-end">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="tt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar menú..." />
+                    </span>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Etiqueta</th>
+                    <th>Código</th>
+                    <th>Ruta</th>
+                    <th>Ícono</th>
+                    <th>Orden</th>
+                    <th style="width: 8rem; text-align: center;">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+                <tr>
+                    <td>
+                        <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                        {{ rowData.label }}
+                    </td>
+                    <td>{{ rowData.code }}</td>
+                    <td>{{ rowData.route }}</td>
+                    <td>
+                        <i *ngIf="rowData.icon" [class]="rowData.icon + ' mr-2'"></i>
+                        {{ rowData.icon }}
+                    </td>
+                    <td>{{ rowData.orderIndex }}</td>
+                    <td style="text-align: center;">
+                        <button
+                            *ngIf="canUpdate"
+                            pButton
+                            icon="pi pi-pencil"
+                            class="p-button-text p-button-sm mr-2"
+                            pTooltip="Editar Menú"
+                            tooltipPosition="top"
+                            (click)="showEditDialog(rowData)">
+                        </button>
+                        
+                        <button
+                            *ngIf="canDelete"
+                            pButton
+                            icon="pi pi-trash"
+                            severity="danger"
+                            class="p-button-text p-button-sm"
+                            pTooltip="Eliminar Menú"
+                            tooltipPosition="top"
+                            (click)="eliminarMenu(rowData)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center p-4">
+                        No se encontraron menús en el sistema.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-treeTable>
+    </div>
+</app-page-content>
+
+<app-app-dialog
+    [(visible)]="dialogVisible"
+    [title]="selectedMenu ? 'Editar Menú' : 'Nuevo Menú'"
+    width="650px">
+    
+    <app-menu-form
+        *ngIf="dialogVisible"
+        [menu]="selectedMenu"
+        [flatMenus]="flatMenus"
+        [applications]="applications"
+        (save)="guardarMenu($event)"
+        (cancel)="dialogVisible = false">
+    </app-menu-form>
+</app-app-dialog>

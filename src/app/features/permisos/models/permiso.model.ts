@@ -9,6 +9,7 @@ export interface PermissionResponse {
   code: string;
   description: string;
   createdAt: string;
+  applicationId?: number;
 }
 
 export interface PermissionRequest {

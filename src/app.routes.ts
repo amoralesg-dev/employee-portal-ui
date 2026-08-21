@@ -35,6 +35,11 @@ export const appRoutes: Routes = [
         children: [
             {
                 path: '',
+                redirectTo: 'dashboard',
+                pathMatch: 'full'
+            },
+            {
+                path: 'dashboard',
                 component: Dashboard
             },
 
@@ -55,6 +60,20 @@ export const appRoutes: Routes = [
                 loadChildren: () =>
                     import('./app/features/permisos/permisos.routes'),
                 canActivate: [permissionGuard('PERMISSION_READ')]
+            },
+
+            {
+                path: 'menus',
+                loadChildren: () =>
+                    import('./app/features/menus/menus.routes'),
+                canActivate: [permissionGuard('MENU_READ')]
+            },
+
+            {
+                path: 'aplicaciones',
+                loadChildren: () =>
+                    import('./app/features/aplicaciones/aplicaciones.routes'),
+                canActivate: [permissionGuard('APPLICATION_READ')]
             },
 
             {

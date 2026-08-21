@@ -1,0 +1,62 @@
+<app-page-header
+    title="Aplicaciones"
+    subtitle="Administración y gestión de aplicaciones del sistema">
+</app-page-header>
+
+<app-page-toolbar>
+    <button
+        *ngIf="canCreate"
+        pButton
+        label="Nueva Aplicación"
+        icon="pi pi-plus"
+        (click)="showCreateDialog()">
+    </button>
+</app-page-toolbar>
+
+<app-page-content>
+    <div class="aplicaciones-container">
+        <app-data-table
+            [columns]="columns"
+            [data]="applications"
+            [loading]="loading"
+            [rows]="10"
+            [globalFilterFields]="['id', 'code', 'name', 'description', 'statusText']">
+            
+            <ng-template #actions let-row>
+                <button
+                    *ngIf="canUpdate"
+                    pButton
+                    icon="pi pi-pencil"
+                    class="p-button-text"
+                    pTooltip="Editar Aplicación"
+                    tooltipPosition="top"
+                    (click)="showEditDialog(row)">
+                </button>
+                
+                <button
+                    *ngIf="canDelete"
+                    pButton
+                    icon="pi pi-trash"
+                    severity="danger"
+                    class="p-button-text"
+                    pTooltip="Eliminar Aplicación"
+                    tooltipPosition="top"
+                    (click)="eliminarApp(row)">
+                </button>
+            </ng-template>
+        </app-data-table>
+    </div>
+</app-page-content>
+
+<app-app-dialog
+    [(visible)]="dialogVisible"
+    [title]="selectedApp ? 'Editar Aplicación' : 'Nueva Aplicación'"
+    width="500px">
+    
+    <app-application-form
+        *ngIf="dialogVisible"
+        [application]="selectedApp"
+        (save)="guardarApp($event)"
+        (cancel)="dialogVisible = false">
+    </app-application-form>
+</app-app-dialog>

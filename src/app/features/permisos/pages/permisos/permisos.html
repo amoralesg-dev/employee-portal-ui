@@ -26,6 +26,16 @@
                 <button
                     *ngIf="canUpdate"
                     pButton
+                    icon="pi pi-sitemap"
+                    class="p-button-text p-button-success"
+                    pTooltip="Asignar Menús"
+                    tooltipPosition="top"
+                    (click)="showMenuDialog(row)">
+                </button>
+                
+                <button
+                    *ngIf="canUpdate"
+                    pButton
                     icon="pi pi-pencil"
                     class="p-button-text"
                     pTooltip="Editar Permiso"
@@ -59,4 +69,17 @@
         (save)="guardarPermiso($event)"
         (cancel)="dialogVisible = false">
     </app-permiso-form>
+</app-app-dialog>
+
+<app-app-dialog
+    [(visible)]="menuDialogVisible"
+    title="Asignar Menús al Permiso"
+    width="800px">
+    
+    <app-permiso-menus
+        *ngIf="menuDialogVisible && selectedPermission"
+        [permission]="selectedPermission"
+        (saved)="menuDialogVisible = false; loadPermissions()"
+        (cancel)="menuDialogVisible = false">
+    </app-permiso-menus>
 </app-app-dialog>

@@ -1,0 +1,101 @@
+<form [formGroup]="form" class="menu-form flex flex-col gap-4">
+  <div class="grid grid-cols-2 gap-4">
+    
+    <div class="field flex flex-col gap-1">
+      <label for="code" class="font-medium">Código</label>
+      <input id="code" pInputText formControlName="code" placeholder="Ej. MENUS" />
+      <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">
+        Obligatorio.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="label" class="font-medium">Etiqueta</label>
+      <input id="label" pInputText formControlName="label" placeholder="Ej. Menús" />
+      <small class="text-red-500" *ngIf="form.get('label')?.touched && form.get('label')?.errors?.['required']">
+        Obligatorio.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="route" class="font-medium">Ruta</label>
+      <input id="route" pInputText formControlName="route" placeholder="Ej. /menus" />
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="icon" class="font-medium">Ícono</label>
+      <p-select 
+        id="icon" 
+        [options]="iconList" 
+        formControlName="icon" 
+        optionLabel="label" 
+        optionValue="value" 
+        placeholder="Selecciona un ícono" 
+        [showClear]="true" 
+        appendTo="body">
+        
+        <ng-template let-icon pTemplate="selectedItem">
+            <div class="flex items-center gap-2" *ngIf="icon">
+                <i [class]="icon.value"></i>
+                <div>{{ icon.label }}</div>
+            </div>
+        </ng-template>
+        
+        <ng-template let-icon pTemplate="item">
+            <div class="flex items-center gap-2">
+                <i [class]="icon.value"></i>
+                <div>{{ icon.label }}</div>
+            </div>
+        </ng-template>
+
+      </p-select>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="applicationId" class="font-medium">Aplicación</label>
+      <p-select 
+        id="applicationId" 
+        [options]="applications" 
+        formControlName="applicationId" 
+        optionLabel="name" 
+        optionValue="id" 
+        placeholder="Seleccione la aplicación" 
+        [showClear]="true" 
+        appendTo="body">
+      </p-select>
+      <small class="text-red-500" *ngIf="form.get('applicationId')?.touched && form.get('applicationId')?.errors?.['required']">
+        Obligatorio.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="parentId" class="font-medium">Menú Padre</label>
+      <p-select 
+        id="parentId" 
+        [options]="filteredMenus" 
+        formControlName="parentId" 
+        optionLabel="label" 
+        optionValue="id" 
+        placeholder="Ninguno (Raíz)" 
+        [showClear]="true" 
+        [filter]="true"
+        filterBy="label,code"
+        appendTo="body">
+      </p-select>
+    </div>
+    
+    <div class="field flex flex-col gap-1">
+      <label for="orderIndex" class="font-medium">Orden</label>
+      <p-inputNumber id="orderIndex" formControlName="orderIndex" [min]="0" [max]="1000" [showButtons]="true"></p-inputNumber>
+      <small class="text-red-500" *ngIf="form.get('orderIndex')?.touched && form.get('orderIndex')?.errors?.['required']">
+        Obligatorio.
+      </small>
+    </div>
+
+  </div>
+
+  <div class="actions flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
+    <button pButton type="button" label="Guardar" (click)="guardar()"></button>
+  </div>
+</form>

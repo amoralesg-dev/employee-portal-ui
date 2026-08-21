@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiResponse, PermissionRequest, PermissionResponse } from '../models/permiso.model';
+import { MenuResponse } from '../../menus/models/menu.model';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -35,5 +36,15 @@ export class PermisoService {
   deletePermission(id: number): Observable<void> {
     return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`)
       .pipe(map(() => void 0));
+  }
+
+  getPermissionMenus(id: number): Observable<MenuResponse[]> {
+    return this.http.get<ApiResponse<MenuResponse[]>>(`${this.baseUrl}/${id}/menus`)
+      .pipe(map(res => res.data));
+  }
+
+  updatePermissionMenus(id: number, menuIds: number[]): Observable<PermissionResponse> {
+    return this.http.put<ApiResponse<PermissionResponse>>(`${this.baseUrl}/${id}/menus`, { menuIds })
+      .pipe(map(res => res.data));
   }
 }

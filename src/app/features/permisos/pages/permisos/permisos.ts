@@ -10,6 +10,7 @@ import {
   Loader
 } from '@rassini/rassini-ui';
 import { PermisoForm } from '../../components/permiso-form/permiso-form';
+import { PermisoMenusComponent } from '../../components/permiso-menus/permiso-menus';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
@@ -29,7 +30,8 @@ import { PermissionService as SharedPermissionService } from '../../../../shared
     TooltipModule,
     DataTable,
     AppDialog,
-    PermisoForm
+    PermisoForm,
+    PermisoMenusComponent
   ],
   providers: [DatePipe],
   templateUrl: './permisos.html'
@@ -49,6 +51,7 @@ export class Permisos implements OnInit {
 
   loading = true;
   dialogVisible = false;
+  menuDialogVisible = false;
   selectedPermission: PermissionResponse | null = null;
   permissions: any[] = [];
 
@@ -91,6 +94,11 @@ export class Permisos implements OnInit {
   showEditDialog(permission: PermissionResponse): void {
     this.selectedPermission = permission;
     this.dialogVisible = true;
+  }
+
+  showMenuDialog(permission: PermissionResponse): void {
+    this.selectedPermission = permission;
+    this.menuDialogVisible = true;
   }
 
   guardarPermiso(formData: PermissionRequest): void {

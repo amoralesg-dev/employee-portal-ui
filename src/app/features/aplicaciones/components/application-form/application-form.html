@@ -1,0 +1,45 @@
+<form [formGroup]="form" class="application-form flex flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4">
+    
+    <div class="field flex flex-col gap-1">
+      <label for="code" class="font-medium">Código</label>
+      <input id="code" pInputText formControlName="code" placeholder="Ej. EMP_PORTAL" />
+      <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">
+        Obligatorio.
+      </small>
+      <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['maxlength']">
+        Máximo 50 caracteres.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="name" class="font-medium">Nombre</label>
+      <input id="name" pInputText formControlName="name" placeholder="Ej. Portal de Empleados" />
+      <small class="text-red-500" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['required']">
+        Obligatorio.
+      </small>
+      <small class="text-red-500" *ngIf="form.get('name')?.touched && form.get('name')?.errors?.['maxlength']">
+        Máximo 100 caracteres.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1">
+      <label for="description" class="font-medium">Descripción</label>
+      <textarea id="description" pTextarea formControlName="description" rows="3" placeholder="Descripción de la aplicación"></textarea>
+      <small class="text-red-500" *ngIf="form.get('description')?.touched && form.get('description')?.errors?.['maxlength']">
+        Máximo 255 caracteres.
+      </small>
+    </div>
+
+    <div class="field flex items-center gap-2 mt-2">
+      <p-toggleswitch inputId="active" formControlName="active"></p-toggleswitch>
+      <label for="active" class="font-medium mb-0">Activo</label>
+    </div>
+
+  </div>
+
+  <div class="actions flex justify-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
+    <button pButton type="button" label="Guardar" (click)="guardar()"></button>
+  </div>
+</form>
