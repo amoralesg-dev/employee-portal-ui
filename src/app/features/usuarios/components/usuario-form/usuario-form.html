@@ -61,6 +61,45 @@
     </small>
   </div>
 
+  <div class="field flex align-items-center gap-2 mt-2">
+    <div class="flex items-center gap-2">
+      <input type="checkbox" id="hasAllBusinessUnits" formControlName="hasAllBusinessUnits" (change)="onGlobalAccessChange($event.target)" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+      <label for="hasAllBusinessUnits" class="font-medium text-gray-900">Acceso a todas las Business Units</label>
+    </div>
+  </div>
+
+  <div class="field flex flex-col gap-1" *ngIf="!form.get('hasAllBusinessUnits')?.value">
+    <label class="font-medium">Business Units asignadas</label>
+    <p-pickList 
+      [source]="buAvailable" 
+      [target]="buAssigned" 
+      sourceHeader="BUs Disponibles" 
+      targetHeader="BUs Asignadas" 
+      [dragdrop]="true" 
+      [responsive]="true" 
+      [showSourceControls]="false" 
+      [showTargetControls]="false"
+      [sourceStyle]="{ height: '12rem' }" 
+      [targetStyle]="{ height: '12rem' }"
+      filterBy="name,code" 
+      sourceFilterPlaceholder="Buscar..." 
+      targetFilterPlaceholder="Buscar..."
+      (onMoveToTarget)="onBuMove()"
+      (onMoveToSource)="onBuMove()"
+      (onMoveAllToTarget)="onBuMove()"
+      (onMoveAllToSource)="onBuMove()">
+      <ng-template let-bu #item>
+        <div class="flex flex-col gap-0.5 p-1">
+          <span class="font-semibold text-sm">{{ bu.name }}</span>
+          <span class="text-xs text-gray-500">{{ bu.code }}</span>
+        </div>
+      </ng-template>
+    </p-pickList>
+    <small class="text-red-500" *ngIf="form.get('businessUnitIds')?.touched && form.get('businessUnitIds')?.errors?.['required']">
+      Debe asignar al menos una Business Unit.
+    </small>
+  </div>
+
   <div class="actions flex justify-end gap-2 mt-4">
     <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
     <button pButton type="button" label="Guardar" (click)="guardar()"></button>

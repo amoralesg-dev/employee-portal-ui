@@ -110,7 +110,9 @@ export class Usuarios implements OnInit {
       // Update Mode
       const updateReq: UserUpdateRequest = {
         username: formData.username,
-        email: formData.email
+        email: formData.email,
+        hasAllBusinessUnits: formData.hasAllBusinessUnits,
+        businessUnitIds: formData.businessUnitIds
       };
       this.usuarioService.updateUser(this.selectedUser.id, updateReq).subscribe({
         next: (userRes) => {
@@ -139,7 +141,9 @@ export class Usuarios implements OnInit {
       const createReq: UserRequest = {
         username: formData.username,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        hasAllBusinessUnits: formData.hasAllBusinessUnits,
+        businessUnitIds: formData.businessUnitIds
       };
       this.usuarioService.createUser(createReq).subscribe({
         next: (userRes) => {
