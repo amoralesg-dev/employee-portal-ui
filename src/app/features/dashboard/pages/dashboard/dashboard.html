@@ -1,107 +1,205 @@
-<app-page-header
-    title="Dashboard"
-    subtitle="Bienvenido a RASSINI Enterprise Portal">
-</app-page-header>
+<style>
+  .dashboard-layout { display: flex; flex-direction: column; width: 100%; gap: 1.5rem; }
+  .dashboard-row { display: flex; flex-direction: column; width: 100%; gap: 1.5rem; }
+  .col-70 { width: 100%; flex-shrink: 0; }
+  .col-30 { width: 100%; flex-shrink: 0; flex-grow: 1; }
+  .col-25 { width: 100%; flex-shrink: 0; }
+  .col-50 { width: 100%; flex-shrink: 0; flex-grow: 1; }
+  
+  @media screen and (min-width: 992px) {
+      .dashboard-row { flex-direction: row; }
+      .col-70 { width: calc(70% - 0.75rem); }
+      .col-30 { width: calc(30% - 0.75rem); }
+      .col-25 { width: calc(25% - 1.125rem); }
+      .col-50 { width: calc(50% - 1.125rem); }
+  }
+
+  .text-shadow-sm { text-shadow: 1px 1px 3px rgba(0,0,0,0.8) !important; }
+</style>
 
 <app-page-content>
+  <div class="dashboard-layout">
+      
+      <!-- HERO -->
+      <div class="w-full border-round-2xl p-5 lg:px-6 lg:py-5 flex flex-column justify-content-center overflow-hidden relative shadow-1" style="min-height: 180px; background-color: #f26522;">
+          <div class="absolute top-0 right-0 h-full opacity-20" style="width: 50%; background: radial-gradient(circle at 100% 50%, white 0%, transparent 70%); pointer-events: none;"></div>
+          
+          <div class="relative z-10 w-full flex flex-column md:flex-row justify-content-between w-full">
+              
+              <!-- IZQUIERDA: Textos (70%) -->
+              <div class="flex flex-column justify-content-center w-full" style="flex: 1 1 70%;">
+                  <!-- Nivel 1: Título Principal -->
+                  <h1 class="m-0 tracking-tight text-shadow-sm" style="color: #ffffff !important; font-weight: 700 !important; font-size: 2.5rem !important;">Bienvenido, Agustín</h1>
+                  
+                  <!-- Nivel 2: Subtítulo Institucional (Desplazado a la derecha) -->
+                  <p class="m-0 text-shadow-sm block w-full" style="color: #ffffff !important; font-weight: 700 !important; font-size: 1.8rem !important; letter-spacing: 0.5px; margin-left: 120px !important; margin-top: 24px !important;">PORTAL EMPRESARIAL RASSINI</p>
+              </div>
 
-<div class="grid">
+              <!-- DERECHA: Indicadores (30%) Apilados verticalmente y alineados a la derecha -->
+              <div class="flex flex-column justify-content-center align-items-end gap-3 w-full mt-4 md:mt-0" style="flex: 1 1 30%;">
+                  <div class="bg-white-alpha-30 border-round-xl px-4 py-2 flex align-items-center justify-content-between gap-3 shadow-1" style="backdrop-filter: blur(4px); min-width: 180px;">
+                      <i class="pi pi-newspaper text-xl" style="color: #ffffff !important;"></i>
+                      <div class="flex align-items-baseline gap-2">
+                          <span class="text-xl line-height-1" style="color: #ffffff !important; font-weight: 700 !important;">{{ newsList.length }}</span>
+                          <span class="text-xs uppercase tracking-wide" style="color: #ffffff !important; font-weight: 700 !important;">Noticias</span>
+                      </div>
+                  </div>
+                  <div class="bg-white-alpha-30 border-round-xl px-4 py-2 flex align-items-center justify-content-between gap-3 shadow-1" style="backdrop-filter: blur(4px); min-width: 180px;">
+                      <i class="pi pi-bell text-xl" style="color: #ffffff !important;"></i>
+                      <div class="flex align-items-baseline gap-2">
+                          <span class="text-xl line-height-1" style="color: #ffffff !important; font-weight: 700 !important;">{{ announcements.length }}</span>
+                          <span class="text-xs uppercase tracking-wide" style="color: #ffffff !important; font-weight: 700 !important;">Comunicados</span>
+                      </div>
+                  </div>
+                  <div class="bg-white-alpha-30 border-round-xl px-4 py-2 flex align-items-center justify-content-between gap-3 shadow-1" style="backdrop-filter: blur(4px); min-width: 180px;">
+                      <i class="pi pi-calendar text-xl" style="color: #ffffff !important;"></i>
+                      <div class="flex align-items-baseline gap-2">
+                          <span class="text-xl line-height-1" style="color: #ffffff !important; font-weight: 700 !important;">{{ events.length }}</span>
+                          <span class="text-xs uppercase tracking-wide" style="color: #ffffff !important; font-weight: 700 !important;">Eventos</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
 
-    <div class="col-12">
-        <div class="card">
-            <h2>Bienvenido a RASSINI Enterprise Portal</h2>
+      <!-- FILA 1: NOTICIA DESTACADA (70%) + COMUNICADOS (30%) -->
+      <div class="dashboard-row">
+          
+          <!-- Noticia Destacada -->
+          <div class="col-70">
+              <div class="border-round-2xl shadow-1 relative overflow-hidden w-full flex flex-column justify-content-end group cursor-pointer" style="height: 400px; background-color: #000000;" *ngIf="newsList && newsList.length > 0">
+                  <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" [style.background-image]="'url(' + newsList[0].image + ')'" style="opacity: 0.6;"></div>
+                  <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.4) 100%);"></div>
+                  <div class="relative z-10 p-4 lg:p-5">
+                      <span class="bg-white px-3 py-1 border-round-2xl mb-3 inline-block uppercase tracking-wide shadow-1" style="color: #f26522 !important; font-weight: 700 !important; font-size: 0.75rem;">Noticia Principal</span>
+                      <h2 class="m-0 mb-3 line-height-2 text-shadow-sm" style="color: #ffffff !important; font-size: 2.5rem !important; font-weight: 700 !important;">{{ newsList[0].title }}</h2>
+                      <p class="text-xl m-0 mb-4 line-height-3 text-shadow-sm" style="color: #ffffff !important; font-weight: 600 !important;">{{ newsList[0].summary }}</p>
+                      <button pButton type="button" label="Leer artículo completo" class="p-button-rounded bg-orange-500 border-orange-500 hover:bg-orange-600 transition-colors px-4" style="color: #ffffff !important; font-weight: 700 !important;"></button>
+                  </div>
+              </div>
+          </div>
 
-            <p class="mt-3 text-color-secondary">
-                Plataforma corporativa para administración,
-                monitoreo e integración de servicios empresariales.
-            </p>
-        </div>
-    </div>
+          <!-- Comunicados -->
+          <div class="col-30">
+              <div class="bg-white border-round-2xl shadow-1 p-4 lg:p-5 h-full w-full border-none">
+                  <h3 class="m-0 text-xl mb-4 border-bottom-1 surface-border pb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-bell mr-2" style="color: #f26522 !important;"></i> Comunicados</h3>
+                  <ul class="list-none p-0 m-0">
+                      <li *ngFor="let ann of announcements" class="mb-4 border-left-3 pl-3 py-1 hover:surface-hover transition-colors cursor-pointer border-round-right-sm" style="border-left-color: #f26522 !important;">
+                          <div class="flex align-items-center justify-content-between mb-1">
+                              <h4 class="text-sm m-0" style="color: #111827 !important; font-weight: 700 !important;">{{ ann.title }}</h4>
+                          </div>
+                          <p class="text-xs m-0 line-height-3" style="color: #111827 !important; font-weight: 500 !important;">{{ ann.content }}</p>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+      </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Usuarios Activos
-            </span>
+      <!-- FILA 2: EVENTOS (30%) + MIS APLICACIONES (70%) -->
+      <div class="dashboard-row">
+          
+          <!-- Eventos -->
+          <div class="col-30">
+              <div class="bg-white border-round-2xl shadow-1 p-4 lg:p-5 h-full w-full border-none">
+                  <h3 class="m-0 text-xl mb-4 border-bottom-1 surface-border pb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-calendar mr-2" style="color: #f26522 !important;"></i> Eventos</h3>
+                  <ul class="list-none p-0 m-0">
+                      <li *ngFor="let ev of events" class="mb-3 flex align-items-center gap-3 p-2 hover:surface-hover border-round-lg transition-colors cursor-pointer">
+                          <div class="flex flex-column align-items-center justify-content-center bg-white border-1 border-round-lg shadow-1" style="width: 3.5rem; height: 3.5rem; border-color: #f26522 !important;">
+                              <span class="text-xs uppercase" style="color: #f26522 !important; font-weight: 700 !important;">{{ ev.date.split(' ')[2]?.substring(0,3) || 'SEP' }}</span>
+                              <span class="text-xl line-height-1" style="color: #111827 !important; font-weight: 700 !important;">{{ ev.date.split(' ')[0] }}</span>
+                          </div>
+                          <div class="flex-1">
+                              <h4 class="text-sm m-0 mb-1" style="color: #111827 !important; font-weight: 700 !important;">{{ ev.title }}</h4>
+                              <span class="text-xs block" style="color: #111827 !important; font-weight: 500 !important;"><i class="pi pi-map-marker mr-1" style="color: #f26522 !important;"></i>{{ ev.location || 'Oficina Principal' }}</span>
+                          </div>
+                      </li>
+                  </ul>
+              </div>
+          </div>
 
-            <div class="text-900 font-medium text-xl">
-                128
-            </div>
-        </div>
-    </div>
+          <!-- Mis Aplicaciones -->
+          <div class="col-70">
+              <div class="bg-white border-round-2xl shadow-1 p-4 lg:p-5 h-full w-full border-none">
+                  <h3 class="m-0 text-xl mb-4 border-bottom-1 surface-border pb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-th-large mr-2" style="color: #f26522 !important;"></i> Mis Aplicaciones</h3>
+                  <div class="flex flex-wrap" style="gap: 1rem;">
+                      <div class="flex flex-column align-items-center justify-content-center text-center cursor-pointer p-3 hover:shadow-2 border-round-xl transition-all bg-white" style="width: calc(25% - 0.75rem); min-width: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--surface-border);" *ngFor="let link of quickLinks">
+                          <div class="w-3rem h-3rem flex align-items-center justify-content-center border-round-lg mb-2 shadow-1 bg-white">
+                              <i [class]="link.icon + ' text-xl'" style="color: #f26522 !important;"></i>
+                          </div>
+                          <span class="text-xs" style="color: #111827 !important; font-weight: 700 !important;">{{ link.title }}</span>
+                      </div>
+                      <div class="flex flex-column align-items-center justify-content-center text-center cursor-pointer p-3 hover:shadow-2 border-round-xl transition-all bg-white border-1 border-dashed" style="width: calc(25% - 0.75rem); min-width: 100px; border-color: #f26522 !important;">
+                          <div class="w-3rem h-3rem flex align-items-center justify-content-center border-round-lg mb-2" style="color: #f26522 !important;">
+                              <i class="pi pi-plus text-xl"></i>
+                          </div>
+                          <span class="text-xs" style="color: #f26522 !important; font-weight: 700 !important;">Agregar</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Servicios
-            </span>
+      <!-- FILA 3: MÁS NOTICIAS (70%) + CELEBRACIONES (30%) -->
+      <div class="dashboard-row">
+          
+          <!-- Más Noticias -->
+          <div class="col-70">
+              <div class="bg-white border-round-2xl shadow-1 p-4 lg:p-5 h-full w-full border-none">
+                  <h3 class="m-0 text-xl mb-4 border-bottom-1 surface-border pb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-list mr-2" style="color: #f26522 !important;"></i> Más Noticias</h3>
+                  <div class="flex flex-column gap-4">
+                      <ng-container *ngFor="let news of newsList; let i = index">
+                          <div class="flex align-items-start gap-4 cursor-pointer group" *ngIf="i > 0">
+                              <div class="w-10rem h-7rem bg-cover bg-center border-round-xl shadow-1 flex-shrink-0 transition-transform duration-300 group-hover:shadow-2" [style.background-image]="'url(' + news.image + ')'" style="background-color: #000000; opacity: 0.9;"></div>
+                              <div class="flex-1 py-1">
+                                  <span class="text-xs mb-2 block uppercase tracking-wide" style="color: #f26522 !important; font-weight: 700 !important;">{{ news.date }}</span>
+                                  <h4 class="text-lg m-0 mb-2 line-height-2 transition-colors" style="color: #111827 !important; font-weight: 700 !important;">{{ news.title }}</h4>
+                                  <p class="text-sm m-0 line-height-3" style="color: #111827 !important; font-weight: 500 !important;">{{ news.summary }}</p>
+                              </div>
+                          </div>
+                      </ng-container>
+                  </div>
+              </div>
+          </div>
 
-            <div class="text-900 font-medium text-xl">
-                12
-            </div>
-        </div>
-    </div>
+          <!-- Celebraciones -->
+          <div class="col-30">
+              <div class="bg-white border-round-2xl shadow-1 p-4 lg:p-5 h-full w-full border-none">
+                  <h3 class="m-0 text-xl mb-4 border-bottom-1 surface-border pb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-heart-fill mr-2" style="color: #f26522 !important;"></i> Celebraciones</h3>
+                  
+                  <div class="mb-4">
+                      <h4 class="text-sm uppercase tracking-wide mb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-gift mr-2" style="color: #f26522 !important;"></i>Cumpleaños</h4>
+                      <ul class="list-none p-0 m-0">
+                          <li *ngFor="let bday of birthdays" class="mb-3 flex align-items-center gap-3">
+                              <div class="w-2.5rem h-2.5rem border-circle bg-white border-1 flex align-items-center justify-content-center text-sm shadow-1" style="border-color: #f26522 !important; color: #f26522 !important; font-weight: 700 !important;">
+                                  {{ bday.name.charAt(0) }}
+                              </div>
+                              <div class="flex-1">
+                                  <span class="text-sm block" style="color: #111827 !important; font-weight: 700 !important;">{{ bday.name }}</span>
+                                  <span class="text-xs" style="color: #111827 !important; font-weight: 500 !important;">{{ bday.role || 'Colaborador' }}</span>
+                              </div>
+                              <span class="text-xs px-2 py-1 border-round-2xl" style="background-color: #f26522 !important; color: #ffffff !important; font-weight: 700 !important;">{{ bday.date }}</span>
+                          </li>
+                      </ul>
+                  </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                APIs Monitoreadas
-            </span>
+                  <div>
+                      <h4 class="text-sm uppercase tracking-wide mb-3 flex align-items-center" style="color: #111827 !important; font-weight: 700 !important;"><i class="pi pi-star-fill mr-2" style="color: #f26522 !important;"></i>Aniversarios</h4>
+                      <ul class="list-none p-0 m-0">
+                          <li *ngFor="let aniv of anniversaries" class="mb-3 flex align-items-center gap-3">
+                              <div class="w-2.5rem h-2.5rem border-circle bg-white border-1 flex align-items-center justify-content-center text-sm shadow-1" style="border-color: #f26522 !important; color: #f26522 !important; font-weight: 700 !important;">
+                                  {{ aniv.name.charAt(0) }}
+                              </div>
+                              <div class="flex-1">
+                                  <span class="text-sm block" style="color: #111827 !important; font-weight: 700 !important;">{{ aniv.name }}</span>
+                                  <span class="text-xs" style="color: #111827 !important; font-weight: 500 !important;">{{ aniv.years }} años</span>
+                              </div>
+                          </li>
+                      </ul>
+                  </div>
+              </div>
+          </div>
 
-            <div class="text-900 font-medium text-xl">
-                24
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Incidentes
-            </span>
-
-            <div class="text-900 font-medium text-xl">
-                2
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 xl:col-6">
-        <div class="card">
-            <h5>Actividad Reciente</h5>
-
-            <ul class="list-none p-0 m-0">
-                <li class="py-3 border-bottom-1 surface-border">
-                    Servicio de pagos actualizado
-                </li>
-
-                <li class="py-3 border-bottom-1 surface-border">
-                    Nuevo usuario registrado
-                </li>
-
-                <li class="py-3">
-                    Monitoreo ejecutado correctamente
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="col-12 xl:col-6">
-        <div class="card">
-            <h5>Accesos Rápidos</h5>
-
-            <div class="flex gap-3 flex-wrap mt-4">
-
-                <button pButton type="button" label="Usuarios"></button>
-
-                <button pButton type="button" severity="secondary" label="Pagos"></button>
-
-                <button pButton type="button" severity="contrast" label="Reportes"></button>
-
-            </div>
-        </div>
-    </div>
-
-</div>
-
+      </div>
+      
+  </div>
 </app-page-content>

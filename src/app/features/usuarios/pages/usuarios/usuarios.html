@@ -72,7 +72,8 @@
         *ngIf="dialogVisible"
         [user]="selectedUser"
         (save)="guardarUsuario($event)"
-        (cancel)="dialogVisible = false">
+        (cancel)="dialogVisible = false"
+        (mfaAction)="handleMfaAction($event)">
     </app-usuario-form>
 </app-app-dialog>
 

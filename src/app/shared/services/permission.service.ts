@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Auth } from '@rassini/rassini-ui';
+import { Auth, AuthBusinessUnit } from '@rassini/rassini-ui';
 
 /**
  * PermissionService
@@ -31,11 +31,33 @@ export class PermissionService {
     return this.auth.permissions() ?? [];
   }
 
-  /**
-   * Retorna true si el usuario posee al menos uno de los permisos indicados.
-   * @param permissionCodes - Listado de códigos de permisos
-   */
   hasAnyPermission(...permissionCodes: string[]): boolean {
     return permissionCodes.some(code => this.hasPermission(code));
+  }
+
+  /**
+   * Retorna la lista de Business Units asignadas directamente al usuario autenticado.
+   */
+  businessUnits(): AuthBusinessUnit[] {
+    return this.auth.businessUnits() ?? [];
+  }
+
+  /**
+   * Retorna true si el usuario tiene acceso a todas las Business Units (acceso global).
+   */
+  hasAllBusinessUnits(): boolean {
+    return this.auth.hasAllBusinessUnits() ?? false;
+  }
+
+  /**
+   * Retorna true si el usuario tiene acceso a la Business Unit especificada.
+   * - Si es usuario global (hasAllBusinessUnits=true), retorna true para cualquier BU.
+   * - Si no, busca el ID en la lista de BUs asignadas.
+   */
+  canAccessBusinessUnit(businessUnitId: number): boolean {
+    if (this.hasAllBusinessUnits()) {
+      return true;
+    }
+    return this.businessUnits().some(bu => bu.id === businessUnitId);
   }
 }

@@ -1,5 +1,16 @@
 <form [formGroup]="form" class="permiso-form flex flex-col gap-4">
   <div class="field flex flex-col gap-1">
+    <label for="applicationId" class="font-medium">Aplicación</label>
+    <p-select id="applicationId" [options]="applications" formControlName="applicationId" 
+                optionLabel="name" optionValue="id" placeholder="Seleccione una aplicación" 
+                [showClear]="true" [style]="{'width':'100%'}">
+    </p-select>
+    <small class="text-red-500" *ngIf="form.get('applicationId')?.touched && form.get('applicationId')?.errors?.['required']">
+      La aplicación es obligatoria.
+    </small>
+  </div>
+
+  <div class="field flex flex-col gap-1">
     <label for="code" class="font-medium">Código del Permiso</label>
     <input id="code" pInputText formControlName="code" placeholder="Ej. PERMISSION_CREATE" />
     <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">

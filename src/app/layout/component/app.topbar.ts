@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
-import { ChangePasswordComponent, Auth } from '@rassini/rassini-ui';
+import { ChangePasswordComponent, Auth, MfaSettingsComponent } from '@rassini/rassini-ui';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
@@ -13,7 +13,7 @@ import { LayoutService } from '@/app/layout/service/layout.service';
     selector: 'app-topbar',
     standalone: true,
     styleUrl: './app.topbar.scss',
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, DialogModule, ChangePasswordComponent],
+    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator, MenuModule, DialogModule, ChangePasswordComponent, MfaSettingsComponent],
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -72,6 +72,7 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                     </p-dialog>
 
                     <app-change-password #changePasswordDialog></app-change-password>
+                    <rui-mfa-settings #mfaSettingsDialog></rui-mfa-settings>
                 </div>
             </div>
         </div>
@@ -85,6 +86,7 @@ export class AppTopbar {
     router = inject(Router);
 
     @ViewChild('changePasswordDialog') changePasswordDialog!: ChangePasswordComponent;
+    @ViewChild('mfaSettingsDialog') mfaSettingsDialog!: MfaSettingsComponent;
 
     profileVisible = false;
     rolesVisible = false;
@@ -95,6 +97,11 @@ export class AppTopbar {
             label: 'Mi Perfil',
             icon: 'pi pi-user',
             command: () => this.profileVisible = true
+        },
+        {
+            label: 'Seguridad (Autenticador 2FA)',
+            icon: 'pi pi-shield',
+            command: () => this.mfaSettingsDialog.show()
         },
         {
             label: 'Cambiar Contraseña',
