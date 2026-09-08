@@ -255,4 +255,64 @@ export class Usuarios implements OnInit {
     crypto.getRandomValues(array);
     return Array.from(array, (val) => chars[val % chars.length]).join('');
   }
+
+  handleMfaAction(action: 'enable' | 'disable' | 'reset' | 'require' | 'optional'): void {
+    if (!this.selectedUser) return;
+    
+    const userId = this.selectedUser.id;
+    const username = this.selectedUser.username;
+    let header = '';
+    let message = '';
+    
+    if (action === 'enable') {
+      header = 'Habilitar MFA';
+      message = `¿Está seguro que desea habilitar MFA para el usuario ${username}? Se le requerirá configurar un autenticador en su próximo inicio de sesión.`;
+    } else if (action === 'disable') {
+      header = 'Deshabilitar MFA';
+      message = `¿Está seguro que desea deshabilitar MFA para el usuario ${username}? Su configuración actual será eliminada.`;
+    } else if (action === 'reset') {
+      header = 'Reiniciar MFA';
+      message = `¿Está seguro que desea reiniciar el MFA para el usuario ${username}? Esto invalidará su dispositivo actual y se le obligará a configurar uno nuevo en su próximo inicio de sesión.`;
+    } else if (action === 'require') {
+      header = 'Requerir MFA';
+      message = `¿Está seguro que desea marcar el MFA como obligatorio para el usuario ${username}? El usuario no podrá desactivarlo.`;
+    } else if (action === 'optional') {
+      header = 'Hacer MFA Opcional';
+      message = `¿Está seguro que desea quitar la obligatoriedad del MFA para el usuario ${username}?`;
+    }
+
+    this.confirmationService.confirm({
+      header,
+      message,
+      acceptLabel: 'Confirmar',
+      rejectLabel: 'Cancelar',
+      acceptButtonProps: { severity: action === 'disable' ? 'danger' : (action === 'optional' ? 'secondary' : 'warn') },
+      accept: () => {
+        this.loader.show();
+        let apiCall;
+        if (action === 'enable') apiCall = this.usuarioService.enableMfa(userId);
+        else if (action === 'disable') apiCall = this.usuarioService.disableMfa(userId);
+        else if (action === 'reset') apiCall = this.usuarioService.resetMfa(userId);
+        else if (action === 'require') apiCall = this.usuarioService.requireMfa(userId);
+        else apiCall = this.usuarioService.optionalMfa(userId);
+
+        apiCall.subscribe({
+          next: () => {
+            this.loader.hide();
+            this.toast.success('Operación MFA realizada exitosamente');
+            // Recargar datos y actualizar selectedUser
+            this.usuarioService.getUserById(userId).subscribe(updatedUser => {
+              this.selectedUser = updatedUser;
+              this.loadUsers(); // Refresh grid
+            });
+          },
+          error: (err) => {
+            this.loader.hide();
+            const msg = err.error?.message || 'Error al procesar la operación MFA';
+            this.toast.error(msg);
+          }
+        });
+      }
+    });
+  }
 }

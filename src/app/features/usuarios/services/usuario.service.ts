@@ -82,4 +82,24 @@ export class UsuarioService {
   adminResetPassword(username: string, newPassword: string): Observable<void> {
     return this.http.post<void>(`${this.authUrl}/reset-password`, { username, newPassword });
   }
+
+  enableMfa(userId: number): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/mfa/enable`, {});
+  }
+
+  disableMfa(userId: number): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/mfa/disable`, {});
+  }
+
+  resetMfa(userId: number): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/mfa/reset`, {});
+  }
+
+  requireMfa(userId: number): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/mfa/require`, {});
+  }
+
+  optionalMfa(userId: number): Observable<any> {
+    return this.http.post(`${environment.apiBaseUrl}/admin/users/${userId}/mfa/optional`, {});
+  }
 }

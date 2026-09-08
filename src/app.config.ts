@@ -25,7 +25,11 @@ export const appConfig: ApplicationConfig = {
             refreshUrl: `${environment.apiBaseUrl}/auth/refresh`,
             meUrl: `${environment.apiBaseUrl}/auth/me`,
             logoutUrl: `${environment.apiBaseUrl}/auth/logout`,
-            changePasswordUrl: `${environment.apiBaseUrl}/auth/change-password`
+            changePasswordUrl: `${environment.apiBaseUrl}/auth/change-password`,
+            mfaVerifyUrl: `${environment.apiBaseUrl}/auth/mfa/verify`,
+            mfaSetupUrl: `${environment.apiBaseUrl}/auth/mfa/setup`,
+            mfaActivateUrl: `${environment.apiBaseUrl}/auth/mfa/activate`,
+            mfaDisableUrl: `${environment.apiBaseUrl}/auth/mfa/disable`
         }),
         providePrimeNG({ theme: { preset: RassiniPreset, options: { darkModeSelector: '.app-dark' } } }),
         MessageService,ConfirmationService

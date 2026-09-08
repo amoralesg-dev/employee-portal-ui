@@ -31,6 +31,9 @@ export interface UserResponse {
   roles: RoleResponse[];
   businessUnits: AuthBusinessUnit[];
   hasAllBusinessUnits: boolean;
+  mfaEnabled: boolean;
+  mfaSecretExists: boolean;
+  mfaRequired: boolean;
 }
 
 export interface UserRequest {

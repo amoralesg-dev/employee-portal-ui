@@ -17,6 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PickListModule } from 'primeng/picklist';
 import { ToggleButtonModule } from 'primeng/togglebutton';
+import { TabsModule } from 'primeng/tabs';
 import { ConfirmationService } from 'primeng/api';
 import { RoleResponse, UserResponse } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario.service';
@@ -32,7 +33,8 @@ import { BusinessUnitDto } from '../../../business-units/models/business-unit.mo
     ButtonModule,
     InputTextModule,
     PickListModule,
-    ToggleButtonModule
+    ToggleButtonModule,
+    TabsModule
   ],
   templateUrl: './usuario-form.html',
   styleUrl: './usuario-form.scss',
@@ -46,6 +48,7 @@ export class UsuarioForm implements OnInit {
   @Input() user: UserResponse | null = null;
   @Output() save = new EventEmitter<any>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() mfaAction = new EventEmitter<'enable' | 'disable' | 'reset' | 'require' | 'optional'>();
 
   form: FormGroup;
   rolesAvailable: RoleResponse[] = [];

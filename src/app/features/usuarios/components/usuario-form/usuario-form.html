@@ -1,106 +1,169 @@
-<form [formGroup]="form" class="usuario-form flex flex-col gap-4">
-  <div class="field flex flex-col gap-1">
-    <label for="username" class="font-medium">Nombre de Usuario</label>
-    <input id="username" pInputText formControlName="username" placeholder="Ingrese nombre de usuario" />
-    <small class="text-red-500" *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['required']">
-      El nombre de usuario es obligatorio.
-    </small>
-  </div>
+<form [formGroup]="form" class="usuario-form flex flex-col gap-4 h-full">
+  <p-tabs value="0">
+    <p-tablist>
+        <p-tab value="0">Datos Generales</p-tab>
+        <p-tab value="1" *ngIf="user">Seguridad</p-tab>
+    </p-tablist>
+    
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <div class="flex flex-col gap-4 pt-2">
+          <div class="field flex flex-col gap-1">
+            <label for="username" class="font-medium">Nombre de Usuario</label>
+            <input id="username" pInputText formControlName="username" placeholder="Ingrese nombre de usuario" />
+            <small class="text-red-500" *ngIf="form.get('username')?.touched && form.get('username')?.errors?.['required']">
+              El nombre de usuario es obligatorio.
+            </small>
+          </div>
 
-  <div class="field flex flex-col gap-1">
-    <label for="email" class="font-medium">Correo Electrónico</label>
-    <input id="email" pInputText formControlName="email" placeholder="correo@ejemplo.com" />
-    <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['required']">
-      El correo electrónico es obligatorio.
-    </small>
-    <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['email']">
-      Ingrese un formato de correo electrónico válido.
-    </small>
-  </div>
+          <div class="field flex flex-col gap-1">
+            <label for="email" class="font-medium">Correo Electrónico</label>
+            <input id="email" pInputText formControlName="email" placeholder="correo@ejemplo.com" />
+            <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['required']">
+              El correo electrónico es obligatorio.
+            </small>
+            <small class="text-red-500" *ngIf="form.get('email')?.touched && form.get('email')?.errors?.['email']">
+              Ingrese un formato de correo electrónico válido.
+            </small>
+          </div>
 
-  <div class="field flex flex-col gap-1" *ngIf="!user">
-    <label for="password" class="font-medium">Contraseña</label>
-    <input id="password" pInputText type="password" formControlName="password" placeholder="Contraseña de al menos 8 caracteres" />
-    <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['required']">
-      La contraseña es obligatoria para nuevos usuarios.
-    </small>
-    <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['minlength']">
-      La contraseña debe tener al menos 8 caracteres.
-    </small>
-  </div>
+          <div class="field flex flex-col gap-1" *ngIf="!user">
+            <label for="password" class="font-medium">Contraseña</label>
+            <input id="password" pInputText type="password" formControlName="password" placeholder="Contraseña de al menos 8 caracteres" />
+            <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['required']">
+              La contraseña es obligatoria para nuevos usuarios.
+            </small>
+            <small class="text-red-500" *ngIf="form.get('password')?.touched && form.get('password')?.errors?.['minlength']">
+              La contraseña debe tener al menos 8 caracteres.
+            </small>
+          </div>
 
-  <div class="field flex flex-col gap-1">
-    <label class="font-medium">Asignación de Roles</label>
-    <p-pickList 
-      [source]="rolesAvailable" 
-      [target]="rolesAssigned" 
-      sourceHeader="Roles Disponibles" 
-      targetHeader="Roles Asignados" 
-      [dragdrop]="true" 
-      [responsive]="true" 
-      [showSourceControls]="false" 
-      [showTargetControls]="false"
-      [sourceStyle]="{ height: '18rem' }" 
-      [targetStyle]="{ height: '18rem' }"
-      filterBy="name,description" 
-      sourceFilterPlaceholder="Buscar por nombre..." 
-      targetFilterPlaceholder="Buscar por nombre..."
-      (onMoveToTarget)="onMove()"
-      (onMoveToSource)="onMove()"
-      (onMoveAllToTarget)="onMove()"
-      (onMoveAllToSource)="onMove()">
-      <ng-template let-rol #item>
-        <div class="flex flex-col gap-0.5 p-1">
-          <span class="font-semibold text-sm">{{ rol.name }}</span>
-          <span class="text-xs text-gray-500" *ngIf="rol.description">{{ rol.description }}</span>
+          <div class="field flex flex-col gap-1">
+            <label class="font-medium">Asignación de Roles</label>
+            <p-pickList 
+              [source]="rolesAvailable" 
+              [target]="rolesAssigned" 
+              sourceHeader="Roles Disponibles" 
+              targetHeader="Roles Asignados" 
+              [dragdrop]="true" 
+              [responsive]="true" 
+              [showSourceControls]="false" 
+              [showTargetControls]="false"
+              [sourceStyle]="{ height: '18rem' }" 
+              [targetStyle]="{ height: '18rem' }"
+              filterBy="name,description" 
+              sourceFilterPlaceholder="Buscar por nombre..." 
+              targetFilterPlaceholder="Buscar por nombre..."
+              (onMoveToTarget)="onMove()"
+              (onMoveToSource)="onMove()"
+              (onMoveAllToTarget)="onMove()"
+              (onMoveAllToSource)="onMove()">
+              <ng-template let-rol #item>
+                <div class="flex flex-col gap-0.5 p-1">
+                  <span class="font-semibold text-sm">{{ rol.name }}</span>
+                  <span class="text-xs text-gray-500" *ngIf="rol.description">{{ rol.description }}</span>
+                </div>
+              </ng-template>
+            </p-pickList>
+            <small class="text-red-500" *ngIf="form.get('roleIds')?.touched && form.get('roleIds')?.errors?.['required']">
+              Debe asignar al menos un rol.
+            </small>
+          </div>
+
+          <div class="field flex align-items-center gap-2 mt-2">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="hasAllBusinessUnits" formControlName="hasAllBusinessUnits" (change)="onGlobalAccessChange($event.target)" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
+              <label for="hasAllBusinessUnits" class="font-medium text-gray-900">Acceso a todas las Business Units</label>
+            </div>
+          </div>
+
+          <div class="field flex flex-col gap-1" *ngIf="!form.get('hasAllBusinessUnits')?.value">
+            <label class="font-medium">Business Units asignadas</label>
+            <p-pickList 
+              [source]="buAvailable" 
+              [target]="buAssigned" 
+              sourceHeader="BUs Disponibles" 
+              targetHeader="BUs Asignadas" 
+              [dragdrop]="true" 
+              [responsive]="true" 
+              [showSourceControls]="false" 
+              [showTargetControls]="false"
+              [sourceStyle]="{ height: '12rem' }" 
+              [targetStyle]="{ height: '12rem' }"
+              filterBy="name,code" 
+              sourceFilterPlaceholder="Buscar..." 
+              targetFilterPlaceholder="Buscar..."
+              (onMoveToTarget)="onBuMove()"
+              (onMoveToSource)="onBuMove()"
+              (onMoveAllToTarget)="onBuMove()"
+              (onMoveAllToSource)="onBuMove()">
+              <ng-template let-bu #item>
+                <div class="flex flex-col gap-0.5 p-1">
+                  <span class="font-semibold text-sm">{{ bu.name }}</span>
+                  <span class="text-xs text-gray-500">{{ bu.code }}</span>
+                </div>
+              </ng-template>
+            </p-pickList>
+            <small class="text-red-500" *ngIf="form.get('businessUnitIds')?.touched && form.get('businessUnitIds')?.errors?.['required']">
+              Debe asignar al menos una Business Unit.
+            </small>
+          </div>
         </div>
-      </ng-template>
-    </p-pickList>
-    <small class="text-red-500" *ngIf="form.get('roleIds')?.touched && form.get('roleIds')?.errors?.['required']">
-      Debe asignar al menos un rol.
-    </small>
-  </div>
+      </p-tabpanel>
 
-  <div class="field flex align-items-center gap-2 mt-2">
-    <div class="flex items-center gap-2">
-      <input type="checkbox" id="hasAllBusinessUnits" formControlName="hasAllBusinessUnits" (change)="onGlobalAccessChange($event.target)" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
-      <label for="hasAllBusinessUnits" class="font-medium text-gray-900">Acceso a todas las Business Units</label>
-    </div>
-  </div>
+      <p-tabpanel value="1" *ngIf="user">
+        <div class="flex flex-col gap-4 pt-4 mt-2">
+          <h3 class="text-lg font-bold text-gray-800 m-0">Autenticación Multifactor (MFA)</h3>
+          
+          <div class="flex flex-col gap-2 p-4 bg-gray-50 border rounded-md">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-700">Estado actual:</span>
+              <span class="px-2 py-1 text-xs font-semibold rounded-full" 
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': user.mfaEnabled && user.mfaSecretExists && !user.mfaRequired,
+                      'bg-purple-100 text-purple-800': user.mfaRequired,
+                      'bg-yellow-100 text-yellow-800': user.mfaEnabled && !user.mfaSecretExists && !user.mfaRequired,
+                      'bg-gray-200 text-gray-800': !user.mfaEnabled
+                    }">
+                {{ !user.mfaEnabled ? 'Deshabilitado' : (user.mfaRequired ? 'Obligatorio' : (user.mfaSecretExists ? 'Habilitado' : 'Pendiente de configuración')) }}
+              </span>
+            </div>
 
-  <div class="field flex flex-col gap-1" *ngIf="!form.get('hasAllBusinessUnits')?.value">
-    <label class="font-medium">Business Units asignadas</label>
-    <p-pickList 
-      [source]="buAvailable" 
-      [target]="buAssigned" 
-      sourceHeader="BUs Disponibles" 
-      targetHeader="BUs Asignadas" 
-      [dragdrop]="true" 
-      [responsive]="true" 
-      [showSourceControls]="false" 
-      [showTargetControls]="false"
-      [sourceStyle]="{ height: '12rem' }" 
-      [targetStyle]="{ height: '12rem' }"
-      filterBy="name,code" 
-      sourceFilterPlaceholder="Buscar..." 
-      targetFilterPlaceholder="Buscar..."
-      (onMoveToTarget)="onBuMove()"
-      (onMoveToSource)="onBuMove()"
-      (onMoveAllToTarget)="onBuMove()"
-      (onMoveAllToSource)="onBuMove()">
-      <ng-template let-bu #item>
-        <div class="flex flex-col gap-0.5 p-1">
-          <span class="font-semibold text-sm">{{ bu.name }}</span>
-          <span class="text-xs text-gray-500">{{ bu.code }}</span>
+            <p class="text-sm text-gray-600 m-0 mt-2">
+              Utiliza las siguientes acciones para administrar forzosamente la configuración MFA de este usuario. Estas acciones toman efecto inmediato.
+            </p>
+
+            <div class="flex flex-wrap gap-2 mt-4">
+              <button pButton type="button" label="Requerir MFA" icon="pi pi-lock" 
+                      [disabled]="user.mfaRequired"
+                      (click)="mfaAction.emit('require')" 
+                      class="p-button-primary"></button>
+              <button pButton type="button" label="Quitar obligatoriedad" icon="pi pi-unlock" 
+                      [disabled]="!user.mfaRequired"
+                      (click)="mfaAction.emit('optional')" 
+                      class="p-button-secondary"></button>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <button pButton type="button" label="Habilitar MFA" icon="pi pi-shield" 
+                      [disabled]="user.mfaEnabled || user.mfaRequired"
+                      (click)="mfaAction.emit('enable')" 
+                      class="p-button-success"></button>
+              <button pButton type="button" label="Reiniciar MFA" icon="pi pi-refresh" 
+                      [disabled]="!user.mfaEnabled || !user.mfaSecretExists"
+                      (click)="mfaAction.emit('reset')" 
+                      class="p-button-warning"></button>
+              <button pButton type="button" label="Deshabilitar MFA" icon="pi pi-ban" 
+                      [disabled]="!user.mfaEnabled || user.mfaRequired"
+                      (click)="mfaAction.emit('disable')" 
+                      class="p-button-danger"></button>
+            </div>
+          </div>
         </div>
-      </ng-template>
-    </p-pickList>
-    <small class="text-red-500" *ngIf="form.get('businessUnitIds')?.touched && form.get('businessUnitIds')?.errors?.['required']">
-      Debe asignar al menos una Business Unit.
-    </small>
-  </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 
-  <div class="actions flex justify-end gap-2 mt-4">
+  <div class="actions flex justify-end gap-2 mt-4 pt-4 border-t border-gray-200">
     <button pButton type="button" label="Cancelar" severity="secondary" (click)="cancel.emit()"></button>
     <button pButton type="button" label="Guardar" (click)="guardar()"></button>
   </div>
