@@ -17,7 +17,15 @@ export const appConfig: ApplicationConfig = {
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(
             withFetch(),
-            withInterceptors([authInterceptor])
+            withInterceptors([
+                (req, next) => {
+                    if (req.url.includes('/api/v1/auth/')) {
+                        req = req.clone({ withCredentials: true });
+                    }
+                    return next(req);
+                },
+                authInterceptor
+            ])
         ),
         provideZonelessChangeDetection(),
         provideRassiniAuth({

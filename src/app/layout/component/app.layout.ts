@@ -110,11 +110,22 @@ export class AppLayout {
         };
 
         const primeIcon = iconMap[menu.icon] || (menu.icon?.startsWith('pi ') ? menu.icon : 'pi pi-' + menu.icon);
+        const isExternal = menu.targetType === 'EXTERNO';
+        const externalTargetUrl = menu.resolvedUrl || menu.externalUrl;
 
         return {
             label: menu.label,
             icon: primeIcon,
-            routerLink: menu.route ? [menu.route] : null,
+            routerLink: isExternal ? null : (menu.route ? [menu.route] : null),
+            url: isExternal ? externalTargetUrl : undefined,
+            target: isExternal ? (menu.openInNewTab ? '_blank' : '_self') : undefined,
+            targetType: menu.targetType,
+            externalUrl: menu.externalUrl,
+            resolvedUrl: menu.resolvedUrl,
+            openInNewTab: menu.openInNewTab,
+            appType: menu.appType,
+            authType: menu.authType,
+            code: menu.code,
             items: menu.children && menu.children.length > 0 
                 ? menu.children.map((child: any) => this.transformMenu(child)) 
                 : null

@@ -3,7 +3,7 @@
     
     <div class="field flex flex-col gap-1">
       <label for="code" class="font-medium">Código</label>
-      <input id="code" pInputText formControlName="code" placeholder="Ej. MENUS" />
+      <input id="code" pInputText formControlName="code" placeholder="Ej. PORTAL_PROV" />
       <small class="text-red-500" *ngIf="form.get('code')?.touched && form.get('code')?.errors?.['required']">
         Obligatorio.
       </small>
@@ -11,15 +11,61 @@
 
     <div class="field flex flex-col gap-1">
       <label for="label" class="font-medium">Etiqueta</label>
-      <input id="label" pInputText formControlName="label" placeholder="Ej. Menús" />
+      <input id="label" pInputText formControlName="label" placeholder="Ej. Portal de Proveedores" />
       <small class="text-red-500" *ngIf="form.get('label')?.touched && form.get('label')?.errors?.['required']">
         Obligatorio.
       </small>
     </div>
 
     <div class="field flex flex-col gap-1">
-      <label for="route" class="font-medium">Ruta</label>
-      <input id="route" pInputText formControlName="route" placeholder="Ej. /menus" />
+      <label for="targetType" class="font-medium">Tipo de Destino</label>
+      <p-select 
+        id="targetType" 
+        [options]="targetTypes" 
+        formControlName="targetType" 
+        optionLabel="label" 
+        optionValue="value" 
+        appendTo="body">
+      </p-select>
+    </div>
+
+    <!-- Si es INTERNO: Ruta Angular -->
+    <div class="field flex flex-col gap-1" *ngIf="!isExternal">
+      <label for="route" class="font-medium">Ruta Interna (Angular)</label>
+      <input id="route" pInputText formControlName="route" placeholder="Ej. /usuarios" />
+    </div>
+
+    <!-- Si es EXTERNO: URL Externa -->
+    <div class="field flex flex-col gap-1" *ngIf="isExternal">
+      <label for="externalUrl" class="font-medium">URL Externa</label>
+      <input id="externalUrl" pInputText formControlName="externalUrl" placeholder="https://app.rassini.com/home" />
+      <small class="text-red-500" *ngIf="form.get('externalUrl')?.touched && form.get('externalUrl')?.errors?.['required']">
+        Obligatorio para menús externos.
+      </small>
+    </div>
+
+    <div class="field flex flex-col gap-1" *ngIf="isExternal">
+      <label for="appType" class="font-medium">Tipo de Aplicación</label>
+      <p-select 
+        id="appType" 
+        [options]="appTypes" 
+        formControlName="appType" 
+        optionLabel="label" 
+        optionValue="value" 
+        appendTo="body">
+      </p-select>
+    </div>
+
+    <div class="field flex flex-col gap-1" *ngIf="isExternal">
+      <label for="authType" class="font-medium">Estrategia Autenticación</label>
+      <p-select 
+        id="authType" 
+        [options]="authTypes" 
+        formControlName="authType" 
+        optionLabel="label" 
+        optionValue="value" 
+        appendTo="body">
+      </p-select>
     </div>
 
     <div class="field flex flex-col gap-1">
@@ -47,12 +93,11 @@
                 <div>{{ icon.label }}</div>
             </div>
         </ng-template>
-
       </p-select>
     </div>
 
     <div class="field flex flex-col gap-1">
-      <label for="applicationId" class="font-medium">Aplicación</label>
+      <label for="applicationId" class="font-medium">Aplicación Perteneciente</label>
       <p-select 
         id="applicationId" 
         [options]="applications" 
@@ -92,6 +137,72 @@
       </small>
     </div>
 
+    <div class="field flex items-center gap-2 mt-4" *ngIf="isExternal">
+      <p-checkbox id="openInNewTab" formControlName="openInNewTab" [binary]="true"></p-checkbox>
+      <label for="openInNewTab" class="font-medium cursor-pointer">Abrir en pestaña nueva (_blank)</label>
+    </div>
+
+  </div>
+
+  <!-- Sección de Parámetros Contextuales (Solo si es EXTERNO) -->
+  <div class="parameters-section border-t pt-4 mt-2" *ngIf="isExternal">
+    <div class="flex justify-between items-center mb-2">
+      <div>
+        <h4 class="font-semibold text-gray-800 m-0">Parámetros de Contexto (No sensibles)</h4>
+        <small class="text-gray-500">Variables contextuales para la URL destino (ej. bu, lang, theme)</small>
+      </div>
+      <button pButton type="button" icon="pi pi-plus" label="Agregar Parámetro" class="p-button-sm p-button-outlined" (click)="addParameter()"></button>
+    </div>
+
+    <div formArrayName="parameters" class="flex flex-col gap-3">
+      <div *ngFor="let paramGroup of parametersArray.controls; let i = index" [formGroupName]="i" class="flex flex-col gap-1 bg-gray-50 p-3 rounded border">
+        <div class="flex items-center gap-2">
+          <!-- Nombre del parámetro en la query string (ej. bu, lang) -->
+          <div class="w-1/3">
+            <input pInputText formControlName="paramName" placeholder="Parámetro (ej. bu, lang)" class="p-inputtext-sm w-full" />
+          </div>
+
+          <!-- Selector desplegable de placeholders soportados -->
+          <div class="flex-1">
+            <p-select 
+              [options]="placeholders" 
+              formControlName="paramValue"
+              optionLabel="placeholder" 
+              optionValue="placeholder"
+              placeholder="Seleccionar placeholder de contexto..." 
+              [editable]="true"
+              class="p-select-sm w-full"
+              appendTo="body">
+              
+              <ng-template pTemplate="selectedItem" let-selected>
+                <div class="flex items-center gap-2" *ngIf="selected">
+                  <span class="font-mono text-sm font-semibold text-blue-700">{{ selected.placeholder || selected }}</span>
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="item" let-item>
+                <div class="flex flex-col py-1">
+                  <span class="font-mono text-sm font-semibold text-blue-700">{{ item.placeholder }}</span>
+                  <span class="text-xs text-gray-500">{{ item.description }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+          </div>
+
+          <button pButton type="button" icon="pi pi-trash" severity="danger" class="p-button-text p-button-sm" (click)="removeParameter(i)" pTooltip="Eliminar parámetro"></button>
+        </div>
+
+        <!-- Descripción informativa del placeholder seleccionado -->
+        <div *ngIf="getPlaceholderDescription(paramGroup.get('paramValue')?.value)" class="text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded flex items-center gap-1">
+          <i class="pi pi-info-circle text-xs"></i>
+          <span>{{ getPlaceholderDescription(paramGroup.get('paramValue')?.value) }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="parametersArray.length === 0" class="text-xs text-gray-400 italic py-1">
+        Sin parámetros adicionales configurados. La URL externa se abrirá directamente.
+      </div>
+    </div>
   </div>
 
   <div class="actions flex justify-end gap-2 mt-4">

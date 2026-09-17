@@ -174,8 +174,24 @@ export class AppMenuitem {
     itemClick(event: Event) {
         const item = this.item();
 
+        console.log('MENU CLICK', item);
+        console.log('TARGET TYPE', item?.targetType);
+        console.log('RESOLVED URL', item?.resolvedUrl);
+        console.log('EXTERNAL URL', item?.externalUrl);
+
         if (item?.disabled) {
             event.preventDefault();
+            return;
+        }
+
+        if (item?.targetType === 'EXTERNO') {
+            event.preventDefault();
+            event.stopPropagation();
+            const targetUrl = item.resolvedUrl || item.externalUrl;
+            const targetWindow = item.openInNewTab ? '_blank' : '_self';
+            if (targetUrl) {
+                window.open(targetUrl, targetWindow);
+            }
             return;
         }
 

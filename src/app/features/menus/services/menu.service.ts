@@ -13,6 +13,12 @@ export interface ApplicationDto {
   active: boolean;
 }
 
+export interface PlaceholderDto {
+  code: string;
+  placeholder: string;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +26,7 @@ export class MenuService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/menus`;
   private readonly appsUrl = `${environment.apiBaseUrl}/applications`;
+  private readonly placeholdersUrl = `${environment.apiBaseUrl}/placeholders`;
 
   getMenusTree(): Observable<MenuResponse[]> {
     return this.http.get<ApiResponse<MenuResponse[]>>(`${this.baseUrl}/tree`)
@@ -53,5 +60,10 @@ export class MenuService {
 
   getApplications(): Observable<ApplicationDto[]> {
     return this.http.get<ApplicationDto[]>(this.appsUrl);
+  }
+
+  getPlaceholders(): Observable<PlaceholderDto[]> {
+    return this.http.get<ApiResponse<PlaceholderDto[]>>(this.placeholdersUrl)
+      .pipe(map(res => res.data));
   }
 }
