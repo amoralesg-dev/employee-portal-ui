@@ -112,17 +112,24 @@ export class AppLayout {
         const primeIcon = iconMap[menu.icon] || (menu.icon?.startsWith('pi ') ? menu.icon : 'pi pi-' + menu.icon);
         const isExternal = menu.targetType === 'EXTERNO';
         const externalTargetUrl = menu.resolvedUrl || menu.externalUrl;
+        
+        // Ecosistema corporativo Rassini (apps internas o protegidas por OIDC):
+        // Deben navegar en la MISMA pestaña (_self) para garantizar una experiencia continua.
+        // Sitios externos de terceros (appType === 'TERCERO') respetan openInNewTab (_blank).
+        const isCorporateEcosystem = menu.appType === 'INTERNA' || menu.authType === 'OIDC';
+        const effectiveOpenInNewTab = isExternal ? (!isCorporateEcosystem && !!menu.openInNewTab) : false;
+        const effectiveTarget = isExternal ? (effectiveOpenInNewTab ? '_blank' : '_self') : undefined;
 
         return {
             label: menu.label,
             icon: primeIcon,
             routerLink: isExternal ? null : (menu.route ? [menu.route] : null),
             url: isExternal ? externalTargetUrl : undefined,
-            target: isExternal ? (menu.openInNewTab ? '_blank' : '_self') : undefined,
+            target: effectiveTarget,
             targetType: menu.targetType,
             externalUrl: menu.externalUrl,
             resolvedUrl: menu.resolvedUrl,
-            openInNewTab: menu.openInNewTab,
+            openInNewTab: effectiveOpenInNewTab,
             appType: menu.appType,
             authType: menu.authType,
             code: menu.code,
