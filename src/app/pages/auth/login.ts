@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Auth, RassiniLogin } from '@rassini/rassini-ui';
 import { Router } from '@angular/router';
@@ -64,13 +64,28 @@ import { Router } from '@angular/router';
         </div>
     `
 })
-export class Login {
+export class Login implements OnInit {
 
     private router = inject(Router);
     private auth = inject(Auth);
 
     errorMessage = '';
     loading = false;
+
+    ngOnInit(): void {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('oidc_logout') === '1') {
+                console.log('[LOGIN] oidc_logout=1 detectado: limpiando tokens locales del portal');
+                localStorage.clear();
+                sessionStorage.clear();
+                this.auth.logout();
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
+    }
 
     onLogin(event: {
         username: string;
