@@ -1,24 +1,23 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { Auth } from '@rassini/rassini-ui';
-
-import {
-  PageContentComponent
-} from '@rassini/rassini-ui';
+import { Auth, PageHeaderComponent, PageContentComponent } from '@rassini/rassini-ui';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     ButtonModule,
     CardModule,
     TagModule,
     TooltipModule,
+    PageHeaderComponent,
     PageContentComponent
   ],
   templateUrl: './dashboard.html',
@@ -28,6 +27,33 @@ export class Dashboard implements OnInit {
   private readonly auth = inject(Auth);
   
   username = '';
+
+  get displayUsername(): string {
+    return this.auth.currentUser()?.username || this.username || 'Colaborador';
+  }
+
+  get displayEmail(): string {
+    return this.auth.currentUser()?.email || 'N/A';
+  }
+
+  get displayBus(): string {
+    if (this.auth.hasAllBusinessUnits()) {
+      return 'Todas (ALL)';
+    }
+    const bus = this.auth.businessUnits();
+    if (bus && bus.length > 0) {
+      return bus.map((b: any) => b.name || b.code).join(', ');
+    }
+    return 'N/A';
+  }
+
+  get displayRoles(): string {
+    const roles = this.auth.roles();
+    if (roles && roles.length > 0) {
+      return roles.join(', ');
+    }
+    return 'EMPLOYEE_USER';
+  }
   
   newsList = [
     {
