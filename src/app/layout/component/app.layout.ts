@@ -19,26 +19,28 @@ import { Router } from '@angular/router';
     template: `
     <div class="layout-wrapper" [ngClass]="containerClass()">
 
-        <rui-shell
-            [menu]="menu"
-            (sidebarVisibleChange)="sidebarVisible = $event"
-            (logout)="onLogout()">
+        @if (auth.isAuthenticated()) {
+            <rui-shell
+                [menu]="menu"
+                (sidebarVisibleChange)="sidebarVisible = $event"
+                (logout)="onLogout()">
 
-            <div class="layout-main">
+                <div class="layout-main">
 
-                <app-app-loader></app-app-loader>
+                    <app-app-loader></app-app-loader>
 
-                <app-app-toast></app-app-toast>
+                    <app-app-toast></app-app-toast>
 
-                <app-app-confirm-dialog></app-app-confirm-dialog>
+                    <app-app-confirm-dialog></app-app-confirm-dialog>
 
-                <router-outlet></router-outlet>
+                    <router-outlet></router-outlet>
 
-            </div>
+                </div>
 
-            <app-footer></app-footer>
+                <app-footer></app-footer>
 
-        </rui-shell>
+            </rui-shell>
+        }
 
         <div class="layout-mask"></div>
 
@@ -48,7 +50,7 @@ import { Router } from '@angular/router';
 export class AppLayout {
     layoutService = inject(LayoutService);
     private router = inject(Router);
-    private auth = inject(Auth);
+    readonly auth = inject(Auth);
 
     sidebarVisible = true;
 
@@ -66,9 +68,15 @@ export class AppLayout {
 
     }
 
-    
-
     constructor() {
+        if (typeof window !== 'undefined') {
+            window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+                if (!this.auth.isAuthenticated()) {
+                    window.location.replace('/employee-portal/auth/login');
+                }
+            });
+        }
+
         effect(() => {
             const state = this.layoutService.layoutState();
             if (state.mobileMenuActive) {
@@ -95,6 +103,9 @@ export class AppLayout {
     
 
     get menu() {
+        if (!this.auth.isAuthenticated()) {
+            return [];
+        }
         const rawMenus = this.auth.menus() || [];
         return rawMenus.map((menu: any) => this.transformMenu(menu));
     }
