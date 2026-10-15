@@ -36,7 +36,8 @@
                 <tr>
                     <th>Etiqueta</th>
                     <th>Código</th>
-                    <th>Ruta</th>
+                    <th>Tipo</th>
+                    <th>Destino / Ruta</th>
                     <th>Ícono</th>
                     <th>Orden</th>
                     <th style="width: 8rem; text-align: center;">Acciones</th>
@@ -50,7 +51,22 @@
                         {{ rowData.label }}
                     </td>
                     <td>{{ rowData.code }}</td>
-                    <td>{{ rowData.route }}</td>
+                    <td>
+                        <span *ngIf="rowData.targetType === 'EXTERNO'" class="text-xs bg-orange-100 text-orange-700 font-bold px-2 py-1 rounded">
+                            EXTERNO
+                        </span>
+                        <span *ngIf="rowData.targetType !== 'EXTERNO'" class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded">
+                            INTERNO
+                        </span>
+                    </td>
+                    <td>
+                        <span *ngIf="rowData.targetType === 'EXTERNO'" class="text-xs text-gray-700" [pTooltip]="rowData.externalUrl">
+                            <i class="pi pi-external-link mr-1 text-orange-500"></i>{{ rowData.externalUrl || '(Sin URL)' }}
+                        </span>
+                        <span *ngIf="rowData.targetType !== 'EXTERNO'">
+                            {{ rowData.route }}
+                        </span>
+                    </td>
                     <td>
                         <i *ngIf="rowData.icon" [class]="rowData.icon + ' mr-2'"></i>
                         {{ rowData.icon }}
