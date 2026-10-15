@@ -15,4 +15,5 @@ export interface PermissionResponse {
 export interface PermissionRequest {
   code: string;
   description?: string;
+  applicationId: number;
 }

@@ -5,6 +5,14 @@ export interface ApiResponse<T> {
   timestamp: string;
 }
 
+export interface AuthBusinessUnit {
+  id: number;
+  code: string;
+  name: string;
+  parentId?: number | null;
+  enabled?: boolean;
+}
+
 export interface RoleResponse {
   id: number;
   code: string;
@@ -21,17 +29,26 @@ export interface UserResponse {
   createdAt: string;
   updatedAt: string;
   roles: RoleResponse[];
+  businessUnits: AuthBusinessUnit[];
+  hasAllBusinessUnits: boolean;
+  mfaEnabled: boolean;
+  mfaSecretExists: boolean;
+  mfaRequired: boolean;
 }
 
 export interface UserRequest {
   username: string;
   email: string;
   password?: string;
+  hasAllBusinessUnits?: boolean;
+  businessUnitIds?: number[];
 }
 
 export interface UserUpdateRequest {
   username: string;
   email: string;
+  hasAllBusinessUnits?: boolean;
+  businessUnitIds?: number[];
 }
 
 export interface UpdateStatusRequest {
@@ -41,3 +58,4 @@ export interface UpdateStatusRequest {
 export interface AssignRolesRequest {
   roleIds: number[];
 }
+

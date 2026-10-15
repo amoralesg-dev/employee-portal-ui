@@ -1,107 +1,158 @@
-<app-page-header
-    title="Dashboard"
-    subtitle="Bienvenido a RASSINI Enterprise Portal">
+<app-page-header 
+  title="Portal Empresarial Rassini" 
+  subtitle="Bienvenido a la plataforma central de servicios, herramientas y aplicaciones corporativas" 
+  icon="pi pi-home">
 </app-page-header>
 
 <app-page-content>
+  <!-- Resumen de Identidad del Usuario (Mismo estilo exacto que CxP) -->
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <h2 style="font-size: 1.15rem; margin-top: 0; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
+      👤 Sesión Corporativa Activa
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; font-size: 0.95rem;">
+      <div><strong>Usuario:</strong> {{ displayUsername }}</div>
+      <div><strong>Correo:</strong> {{ displayEmail }}</div>
+      <div><strong>Business Units:</strong> {{ displayBus }}</div>
+      <div><strong>Roles:</strong> {{ displayRoles }}</div>
+    </div>
+  </div>
 
-<div class="grid">
-
-    <div class="col-12">
-        <div class="card">
-            <h2>Bienvenido a RASSINI Enterprise Portal</h2>
-
-            <p class="mt-3 text-color-secondary">
-                Plataforma corporativa para administración,
-                monitoreo e integración de servicios empresariales.
-            </p>
-        </div>
+  <!-- Accesos Rápidos (Mismo diseño de Cards con borde izquierdo temático y hover que CxP) -->
+  <h3 style="font-size: 1.1rem; color: #334155; margin-bottom: 16px; font-weight: 600;">Accesos Rápidos</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 28px;">
+    <!-- Card 1: Directorio -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-left: 4px solid #ea580c;"
+         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <i class="pi pi-users" style="font-size: 1.5rem; color: #ea580c;"></i>
+        <h4 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Directorio</h4>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+        Encuentra y contacta a colaboradores de todas las plantas y sedes.
+      </p>
     </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Usuarios Activos
-            </span>
-
-            <div class="text-900 font-medium text-xl">
-                128
-            </div>
-        </div>
+    <!-- Card 2: Vacaciones -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-left: 4px solid #16a34a;"
+         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <i class="pi pi-calendar" style="font-size: 1.5rem; color: #16a34a;"></i>
+        <h4 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Vacaciones</h4>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+        Solicita, revisa tu saldo y gestiona periodos de días libres.
+      </p>
     </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Servicios
-            </span>
-
-            <div class="text-900 font-medium text-xl">
-                12
-            </div>
-        </div>
+    <!-- Card 3: Recibos Nómina -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-left: 4px solid #0284c7;"
+         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <i class="pi pi-file" style="font-size: 1.5rem; color: #0284c7;"></i>
+        <h4 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Recibos Nómina</h4>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+        Consulta y descarga tus comprobantes y timbrados fiscales.
+      </p>
     </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                APIs Monitoreadas
-            </span>
-
-            <div class="text-900 font-medium text-xl">
-                24
-            </div>
-        </div>
+    <!-- Card 4: Soporte IT -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-left: 4px solid #dc2626;"
+         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <i class="pi pi-desktop" style="font-size: 1.5rem; color: #dc2626;"></i>
+        <h4 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Soporte IT</h4>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+        Mesa de ayuda y reporte de incidentes tecnológicos.
+      </p>
     </div>
 
-    <div class="col-12 md:col-6 xl:col-3">
-        <div class="card">
-            <span class="block text-500 font-medium mb-3">
-                Incidentes
-            </span>
+    <!-- Card 5: Beneficios -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; border-left: 4px solid #eab308;"
+         onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <i class="pi pi-star" style="font-size: 1.5rem; color: #eab308;"></i>
+        <h4 style="margin: 0; font-size: 1.1rem; color: #1e293b;">Beneficios</h4>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.9rem;">
+        Descubre convenios institucionales, salud y descuentos.
+      </p>
+    </div>
+  </div>
 
-            <div class="text-900 font-medium text-xl">
-                2
-            </div>
+  <!-- Sección de Noticias, Comunicados y Vida Corporativa -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <!-- Noticia Destacada -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);" *ngIf="newsList && newsList.length > 0">
+      <h3 style="font-size: 1.1rem; color: #1e293b; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <i class="pi pi-megaphone" style="color: #ea580c;"></i> Noticia Principal
+      </h3>
+      <div style="position: relative; height: 200px; border-radius: 6px; overflow: hidden; margin-bottom: 16px;">
+        <div [style.background-image]="'url(' + newsList[0].image + ')'" style="position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.85;"></div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);"></div>
+        <div style="position: absolute; bottom: 12px; left: 16px; right: 16px; color: white;">
+          <span style="font-size: 0.75rem; text-transform: uppercase; background: #ea580c; padding: 2px 8px; border-radius: 4px; font-weight: 700;">{{ newsList[0].date }}</span>
+          <h4 style="margin: 6px 0 0 0; font-size: 1.1rem; font-weight: 700; color: white;">{{ newsList[0].title }}</h4>
         </div>
+      </div>
+      <p style="margin: 0; color: #64748b; font-size: 0.92rem; line-height: 1.5;">
+        {{ newsList[0].summary }}
+      </p>
     </div>
 
-    <div class="col-12 xl:col-6">
-        <div class="card">
-            <h5>Actividad Reciente</h5>
-
-            <ul class="list-none p-0 m-0">
-                <li class="py-3 border-bottom-1 surface-border">
-                    Servicio de pagos actualizado
-                </li>
-
-                <li class="py-3 border-bottom-1 surface-border">
-                    Nuevo usuario registrado
-                </li>
-
-                <li class="py-3">
-                    Monitoreo ejecutado correctamente
-                </li>
-            </ul>
+    <!-- Comunicados Oficiales -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="font-size: 1.1rem; color: #1e293b; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <i class="pi pi-bell" style="color: #ea580c;"></i> Comunicados
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div *ngFor="let ann of announcements" style="border-left: 3px solid #ea580c; padding-left: 12px;">
+          <h4 style="margin: 0 0 4px 0; font-size: 0.98rem; color: #1e293b; font-weight: 600;">{{ ann.title }}</h4>
+          <p style="margin: 0 0 4px 0; color: #64748b; font-size: 0.88rem; line-height: 1.4;">{{ ann.content }}</p>
+          <small style="color: #94a3b8; font-size: 0.78rem;">{{ ann.date }}</small>
         </div>
+      </div>
     </div>
 
-    <div class="col-12 xl:col-6">
-        <div class="card">
-            <h5>Accesos Rápidos</h5>
-
-            <div class="flex gap-3 flex-wrap mt-4">
-
-                <button pButton type="button" label="Usuarios"></button>
-
-                <button pButton type="button" severity="secondary" label="Pagos"></button>
-
-                <button pButton type="button" severity="contrast" label="Reportes"></button>
-
-            </div>
+    <!-- Eventos y Celebraciones -->
+    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="font-size: 1.1rem; color: #1e293b; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <i class="pi pi-calendar" style="color: #ea580c;"></i> Próximos Eventos
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px;">
+        <div *ngFor="let ev of events" style="display: flex; align-items: center; gap: 12px;">
+          <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 6px 10px; text-align: center; min-width: 48px;">
+            <span style="display: block; font-size: 0.75rem; color: #ea580c; font-weight: 700;">{{ ev.date.split(' ')[2]?.substring(0,3) || 'SEP' }}</span>
+            <span style="display: block; font-size: 1rem; color: #1e293b; font-weight: 700;">{{ ev.date.split(' ')[0] }}</span>
+          </div>
+          <div>
+            <h4 style="margin: 0 0 2px 0; font-size: 0.95rem; color: #1e293b;">{{ ev.title }}</h4>
+            <small style="color: #64748b; font-size: 0.8rem;"><i class="pi pi-map-marker mr-1"></i>{{ ev.location }}</small>
+          </div>
         </div>
+      </div>
+
+      <h3 style="font-size: 1.1rem; color: #1e293b; margin-top: 16px; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <i class="pi pi-gift" style="color: #ea580c;"></i> Cumpleaños de la Semana
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div *ngFor="let bday of birthdays" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem;">
+          <div>
+            <strong style="color: #334155;">{{ bday.name }}</strong>
+            <small style="color: #64748b; margin-left: 6px;">({{ bday.role }})</small>
+          </div>
+          <span style="background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 12px;">
+            {{ bday.date }}
+          </span>
+        </div>
+      </div>
     </div>
-
-</div>
-
+  </div>
 </app-page-content>

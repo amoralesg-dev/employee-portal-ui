@@ -19,26 +19,28 @@ import { Router } from '@angular/router';
     template: `
     <div class="layout-wrapper" [ngClass]="containerClass()">
 
-        <rui-shell
-            [menu]="menu"
-            (sidebarVisibleChange)="sidebarVisible = $event"
-            (logout)="onLogout()">
+        @if (auth.isAuthenticated()) {
+            <rui-shell
+                [menu]="menu"
+                (sidebarVisibleChange)="sidebarVisible = $event"
+                (logout)="onLogout()">
 
-            <div class="layout-main">
+                <div class="layout-main">
 
-                <app-app-loader></app-app-loader>
+                    <app-app-loader></app-app-loader>
 
-                <app-app-toast></app-app-toast>
+                    <app-app-toast></app-app-toast>
 
-                <app-app-confirm-dialog></app-app-confirm-dialog>
+                    <app-app-confirm-dialog></app-app-confirm-dialog>
 
-                <router-outlet></router-outlet>
+                    <router-outlet></router-outlet>
 
-            </div>
+                </div>
 
-            <app-footer></app-footer>
+                <app-footer></app-footer>
 
-        </rui-shell>
+            </rui-shell>
+        }
 
         <div class="layout-mask"></div>
 
@@ -48,7 +50,7 @@ import { Router } from '@angular/router';
 export class AppLayout {
     layoutService = inject(LayoutService);
     private router = inject(Router);
-    private auth = inject(Auth);
+    readonly auth = inject(Auth);
 
     sidebarVisible = true;
 
@@ -66,9 +68,15 @@ export class AppLayout {
 
     }
 
-    
-
     constructor() {
+        if (typeof window !== 'undefined') {
+            window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+                if (!this.auth.isAuthenticated()) {
+                    window.location.replace('/employee-portal/auth/login');
+                }
+            });
+        }
+
         effect(() => {
             const state = this.layoutService.layoutState();
             if (state.mobileMenuActive) {
@@ -95,6 +103,9 @@ export class AppLayout {
     
 
     get menu() {
+        if (!this.auth.isAuthenticated()) {
+            return [];
+        }
         const rawMenus = this.auth.menus() || [];
         return rawMenus.map((menu: any) => this.transformMenu(menu));
     }
@@ -110,11 +121,29 @@ export class AppLayout {
         };
 
         const primeIcon = iconMap[menu.icon] || (menu.icon?.startsWith('pi ') ? menu.icon : 'pi pi-' + menu.icon);
+        const isExternal = menu.targetType === 'EXTERNO';
+        const externalTargetUrl = menu.resolvedUrl || menu.externalUrl;
+        
+        // Ecosistema corporativo Rassini (apps internas o protegidas por OIDC):
+        // Deben navegar en la MISMA pestaña (_self) para garantizar una experiencia continua.
+        // Sitios externos de terceros (appType === 'TERCERO') respetan openInNewTab (_blank).
+        const isCorporateEcosystem = menu.appType === 'INTERNA' || menu.authType === 'OIDC';
+        const effectiveOpenInNewTab = isExternal ? (!isCorporateEcosystem && !!menu.openInNewTab) : false;
+        const effectiveTarget = isExternal ? (effectiveOpenInNewTab ? '_blank' : '_self') : undefined;
 
         return {
             label: menu.label,
             icon: primeIcon,
-            routerLink: menu.route ? [menu.route] : null,
+            routerLink: isExternal ? null : (menu.route ? [menu.route] : null),
+            url: isExternal ? externalTargetUrl : undefined,
+            target: effectiveTarget,
+            targetType: menu.targetType,
+            externalUrl: menu.externalUrl,
+            resolvedUrl: menu.resolvedUrl,
+            openInNewTab: effectiveOpenInNewTab,
+            appType: menu.appType,
+            authType: menu.authType,
+            code: menu.code,
             items: menu.children && menu.children.length > 0 
                 ? menu.children.map((child: any) => this.transformMenu(child)) 
                 : null

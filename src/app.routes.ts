@@ -42,6 +42,12 @@ export const appRoutes: Routes = [
                 path: 'dashboard',
                 component: Dashboard
             },
+            {
+                path: 'business-units',
+                loadChildren: () =>
+                    import('./app/features/business-units/business-units.routes'),
+                canActivate: [permissionGuard('BU_VIEW')]
+            },
 
             {
                 path: 'usuarios',
