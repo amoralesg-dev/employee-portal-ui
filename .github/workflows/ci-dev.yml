@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-
   workflow_dispatch:
 
 permissions:
@@ -27,7 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: npm
 
       - name: Validar versiones
         run: |
@@ -40,9 +38,11 @@ jobs:
       - name: Compilar Angular DEV
         run: npm run build:dev
 
-      - name: Validar build generado
+      - name: Validar archivos del build
         shell: bash
         run: |
+          set -e
+
           BUILD_PATH="dist/employee-portal-ui/browser"
 
           if [ ! -d "$BUILD_PATH" ]; then
@@ -50,18 +50,15 @@ jobs:
             exit 1
           fi
 
-          if [ ! -f "$BUILD_PATH/index.html" ]; then
-            echo "No existe index.html en: $BUILD_PATH"
-            exit 1
-          fi
+          for FILE in index.html main.js styles.css; do
+            if [ ! -f "$BUILD_PATH/$FILE" ]; then
+              echo "No existe $FILE en $BUILD_PATH"
+              exit 1
+            fi
+          done
 
-          if [ ! -f "$BUILD_PATH/main.js" ]; then
-            echo "No existe main.js en: $BUILD_PATH"
-            exit 1
-          fi
-
-          if [ ! -f "$BUILD_PATH/styles.css" ]; then
-            echo "No existe styles.css en: $BUILD_PATH"
+          if [ ! -d "$BUILD_PATH/assets" ]; then
+            echo "No existe la carpeta assets en $BUILD_PATH"
             exit 1
           fi
 
@@ -71,10 +68,13 @@ jobs:
       - name: Validar base href
         shell: bash
         run: |
+          set -e
+
           INDEX_PATH="dist/employee-portal-ui/browser/index.html"
 
-          if ! grep -F '/employee-portal/' "$INDEX_PATH"; then
-            echo "El index.html no contiene /employee-portal/"
+          if ! grep -Fq '<base href="/employee-portal/">' "$INDEX_PATH"; then
+            echo "index.html no contiene base href=/employee-portal/"
+            cat "$INDEX_PATH"
             exit 1
           fi
 
@@ -83,24 +83,32 @@ jobs:
       - name: Validar configuracion DEV compilada
         shell: bash
         run: |
+          set -e
+
           BUILD_PATH="dist/employee-portal-ui/browser"
+          EXPECTED_URL="http://10.15.1.15:8083/employee-portal/api/v1"
 
-          if grep -R -I -n \
-            -e "localhost:8083" \
-            -e "localhost:8082" \
-            -e "127.0.0.1" \
-            -e "ms-pagos" \
-            "$BUILD_PATH" \
-            --include="*.js"; then
-            echo "El build contiene referencias incorrectas."
-            exit 1
-          fi
+          echo "Validando que no existan URLs heredadas..."
 
-          if ! grep -R -F -n \
-            "10.15.1.15:8083/employee-portal/api/v1" \
-            "$BUILD_PATH" \
-            --include="*.js"; then
-            echo "El build no contiene la URL DEV esperada del backend."
+          INVALID_PATTERNS=(
+            "http://localhost:8083/employee-portal"
+            "http://localhost:8082/ms-pagos"
+            "http://127.0.0.1:8083/employee-portal"
+            "http://10.15.1.15:8082/ms-pagos"
+          )
+
+          for PATTERN in "${INVALID_PATTERNS[@]}"; do
+            if grep -RIFq "$PATTERN" "$BUILD_PATH" --include="*.js"; then
+              echo "El build contiene una URL incorrecta: $PATTERN"
+              exit 1
+            fi
+          done
+
+          echo "Validando URL DEV esperada..."
+
+          if ! grep -RIFq "$EXPECTED_URL" "$BUILD_PATH" --include="*.js"; then
+            echo "El build no contiene la URL DEV esperada:"
+            echo "$EXPECTED_URL"
             exit 1
           fi
 
@@ -163,25 +171,30 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           $deployPath = "C:\deploy\employee-portal-ui"
+          $requiredFiles = @(
+            "index.html",
+            "main.js",
+            "styles.css"
+          )
+
+          foreach ($file in $requiredFiles) {
+            $filePath = Join-Path $deployPath $file
+
+            if (-not (Test-Path $filePath)) {
+              throw "No existe $file en el artifact descargado."
+            }
+          }
+
+          $assetsPath = Join-Path $deployPath "assets"
+
+          if (-not (Test-Path $assetsPath)) {
+            throw "No existe la carpeta assets en el artifact descargado."
+          }
+
           $indexPath = Join-Path $deployPath "index.html"
-          $mainPath = Join-Path $deployPath "main.js"
-          $stylesPath = Join-Path $deployPath "styles.css"
-
-          if (-not (Test-Path $indexPath)) {
-            throw "No existe index.html en el artifact descargado."
-          }
-
-          if (-not (Test-Path $mainPath)) {
-            throw "No existe main.js en el artifact descargado."
-          }
-
-          if (-not (Test-Path $stylesPath)) {
-            throw "No existe styles.css en el artifact descargado."
-          }
-
           $indexContent = Get-Content -Path $indexPath -Raw
 
-          if ($indexContent -notmatch "/employee-portal/") {
+          if ($indexContent -notmatch '<base href="/employee-portal/"') {
             throw "El index.html no contiene el contexto /employee-portal/."
           }
 
@@ -289,9 +302,7 @@ jobs:
             -Force `
             -ErrorAction Stop
 
-          $indexPath = Join-Path $currentPath "index.html"
-
-          if (-not (Test-Path $indexPath)) {
+          if (-not (Test-Path (Join-Path $currentPath "index.html"))) {
             throw "No se copio index.html al destino."
           }
 
@@ -328,9 +339,7 @@ jobs:
             '      </rules>',
             '    </rewrite>',
             '  </system.webServer>',
-            '</configuration>'
-          )
-
+            '<
           Set-Content `
             -Path $webConfigPath `
             -Value $webConfigLines `
@@ -342,7 +351,7 @@ jobs:
 
           $webConfigContent = Get-Content -Path $webConfigPath -Raw
 
-          if ($webConfigContent -notmatch "<clear />") {
+          if ($webConfigContent -notmatch '<clear />') {
             throw "web.config no contiene la limpieza de reglas heredadas."
           }
 
@@ -358,30 +367,31 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           $currentPath = "C:\apps-front\ROC_Apps\employee-portal\current"
+          $requiredFiles = @(
+            "index.html",
+            "main.js",
+            "styles.css",
+            "web.config"
+          )
+
+          foreach ($file in $requiredFiles) {
+            $filePath = Join-Path $currentPath $file
+
+            if (-not (Test-Path $filePath)) {
+              throw "Falta el archivo publicado: $file"
+            }
+          }
+
+          $assetsPath = Join-Path $currentPath "assets"
+
+          if (-not (Test-Path $assetsPath)) {
+            throw "Falta la carpeta assets."
+          }
+
           $indexPath = Join-Path $currentPath "index.html"
-          $webConfigPath = Join-Path $currentPath "web.config"
-          $mainPath = Join-Path $currentPath "main.js"
-          $stylesPath = Join-Path $currentPath "styles.css"
-
-          if (-not (Test-Path $indexPath)) {
-            throw "Falta index.html."
-          }
-
-          if (-not (Test-Path $webConfigPath)) {
-            throw "Falta web.config."
-          }
-
-          if (-not (Test-Path $mainPath)) {
-            throw "Falta main.js."
-          }
-
-          if (-not (Test-Path $stylesPath)) {
-            throw "Falta styles.css."
-          }
-
           $indexContent = Get-Content -Path $indexPath -Raw
 
-          if ($indexContent -notmatch "/employee-portal/") {
+          if ($indexContent -notmatch '/employee-portal/ {
             throw "El index.html desplegado no contiene /employee-portal/."
           }
 
@@ -394,6 +404,10 @@ jobs:
           $ErrorActionPreference = "Stop"
 
           $appcmd = "$env:windir\System32\inetsrv\appcmd.exe"
+
+          if (-not (Test-Path $appcmd)) {
+            throw "No existe appcmd.exe en el servidor."
+          }
 
           $rules = & $appcmd `
             list config "ROC_Apps/employee-portal" `
