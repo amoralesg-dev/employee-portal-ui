@@ -27,6 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
+          cache: npm
 
       - name: Validar versiones
         run: |
@@ -54,6 +55,16 @@ jobs:
             exit 1
           fi
 
+          if [ ! -f "$BUILD_PATH/main.js" ]; then
+            echo "No existe main.js en: $BUILD_PATH"
+            exit 1
+          fi
+
+          if [ ! -f "$BUILD_PATH/styles.css" ]; then
+            echo "No existe styles.css en: $BUILD_PATH"
+            exit 1
+          fi
+
           echo "Contenido del build:"
           ls -la "$BUILD_PATH"
 
@@ -68,6 +79,32 @@ jobs:
           fi
 
           echo "Base href validado correctamente."
+
+      - name: Validar configuracion DEV compilada
+        shell: bash
+        run: |
+          BUILD_PATH="dist/employee-portal-ui/browser"
+
+          if grep -R -I -n \
+            -e "localhost:8083" \
+            -e "localhost:8082" \
+            -e "127.0.0.1" \
+            -e "ms-pagos" \
+            "$BUILD_PATH" \
+            --include="*.js"; then
+            echo "El build contiene referencias incorrectas."
+            exit 1
+          fi
+
+          if ! grep -R -F -n \
+            "10.15.1.15:8083/employee-portal/api/v1" \
+            "$BUILD_PATH" \
+            --include="*.js"; then
+            echo "El build no contiene la URL DEV esperada del backend."
+            exit 1
+          fi
+
+          echo "Configuracion DEV compilada correctamente."
 
       - name: Subir build Angular
         uses: actions/upload-artifact@v4
@@ -127,9 +164,19 @@ jobs:
 
           $deployPath = "C:\deploy\employee-portal-ui"
           $indexPath = Join-Path $deployPath "index.html"
+          $mainPath = Join-Path $deployPath "main.js"
+          $stylesPath = Join-Path $deployPath "styles.css"
 
           if (-not (Test-Path $indexPath)) {
             throw "No existe index.html en el artifact descargado."
+          }
+
+          if (-not (Test-Path $mainPath)) {
+            throw "No existe main.js en el artifact descargado."
+          }
+
+          if (-not (Test-Path $stylesPath)) {
+            throw "No existe styles.css en el artifact descargado."
           }
 
           $indexContent = Get-Content -Path $indexPath -Raw
@@ -181,7 +228,8 @@ jobs:
               -Force
 
             Write-Host "Backup generado: $backupFile"
-          } else {
+          }
+          else {
             Write-Host "Primer despliegue: no existe una version anterior."
           }
 
@@ -268,6 +316,7 @@ jobs:
             '    </defaultDocument>',
             '    <rewrite>',
             '      <rules>',
+            '        <clear />',
             '        <rule name="Angular Routes Employee Portal" stopProcessing="true">',
             '          <match url=".*" />',
             '          <conditions logicalGrouping="MatchAll">',
@@ -289,6 +338,16 @@ jobs:
 
           if (-not (Test-Path $webConfigPath)) {
             throw "No se genero web.config."
+          }
+
+          $webConfigContent = Get-Content -Path $webConfigPath -Raw
+
+          if ($webConfigContent -notmatch "<clear />") {
+            throw "web.config no contiene la limpieza de reglas heredadas."
+          }
+
+          if ($webConfigContent -match 'url="/index.html"') {
+            throw "web.config contiene una reescritura incorrecta al portal raiz."
           }
 
           Write-Host "web.config generado correctamente."
@@ -329,15 +388,38 @@ jobs:
           Get-ChildItem -Path $currentPath |
             Select-Object Name, Length, LastWriteTime
 
+      - name: Validar reglas IIS efectivas
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $appcmd = "$env:windir\System32\inetsrv\appcmd.exe"
+
+          $rules = & $appcmd `
+            list config "ROC_Apps/employee-portal" `
+            /section:system.webServer/rewrite/rules
+
+          $rules | Write-Host
+
+          $rulesText = $rules -join "`n"
+
+          if ($rulesText -notmatch "Angular Routes Employee Portal") {
+            throw "No se encontro la regla Angular de Employee Portal."
+          }
+
+          if ($rulesText -match 'action type="Rewrite" url="/index.html"') {
+            throw "Employee Portal sigue heredando la regla del portal legacy."
+          }
+
+          Write-Host "Reglas IIS efectivas validadas correctamente."
+
       - name: Validar Employee Portal en IIS
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
 
-          $url = "http://127.0.0.1:8080/employee-portal/"
-          $maxAttempts = 12
-
-          for ($i = 1; $i -le $maxAttempts; $i++) {
+          $url = "https://rss-cxp-dev.rassini.com/employee-portal/auth/login"
+          $expectedBaseHref = '/employee-portal/ {
             Write-Host "Intento $i de $maxAttempts"
 
             try {
@@ -347,7 +429,12 @@ jobs:
                 -TimeoutSec 15
 
               if ($response.StatusCode -eq 200) {
+                if ($response.Content -notmatch :Escape($expectedBaseHref)) {
+                  throw "IIS respondio HTTP 200, pero entrego un index.html incorrecto."
+                }
+
                 Write-Host "Employee Portal UI respondio HTTP 200."
+                Write-Host "El index.html contiene /employee-portal/."
                 exit 0
               }
 
