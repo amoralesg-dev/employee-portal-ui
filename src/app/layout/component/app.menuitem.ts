@@ -174,32 +174,14 @@ export class AppMenuitem {
     itemClick(event: Event) {
         const item = this.item();
 
-        console.log('MENU CLICK', item);
-        console.log('TARGET TYPE', item?.targetType);
-        console.log('RESOLVED URL', item?.resolvedUrl);
-        console.log('EXTERNAL URL', item?.externalUrl);
-
         if (item?.disabled) {
             event.preventDefault();
             return;
         }
 
-        if (item?.targetType === 'EXTERNO') {
-            event.preventDefault();
-            event.stopPropagation();
-            const targetUrl = item.resolvedUrl || item.externalUrl;
-            const targetWindow = item.openInNewTab ? '_blank' : '_self';
-            if (targetUrl) {
-                window.open(targetUrl, targetWindow);
-            }
-            return;
-        }
-
-        if (item?.command) {
-            item.command({ originalEvent: event, item: item });
-        }
-
+        // Elementos padre con hijos solo expanden/contraen el submenú, nunca inician navegación
         if (this.hasChildren()) {
+            event.preventDefault();
             if (this.isActive()) {
                 this.layoutService.layoutState.update((val) => ({
                     ...val,
@@ -212,14 +194,39 @@ export class AppMenuitem {
                     menuHoverActive: true
                 }));
             }
-        } else {
-            this.layoutService.layoutState.update((val) => ({
-                ...val,
-                overlayMenuActive: false,
-                staticMenuMobileActive: false,
-                mobileMenuActive: false,
-                menuHoverActive: false
-            }));
+            return;
         }
+
+        if (item?.command) {
+            event.preventDefault();
+            event.stopPropagation();
+            item.command({ originalEvent: event, item: item });
+            return;
+        }
+
+        if (item?.targetType === 'EXTERNO') {
+            event.preventDefault();
+            event.stopPropagation();
+            const targetUrl = item.resolvedUrl || item.externalUrl || item.url;
+            if (targetUrl) {
+                if (item.authType === 'OIDC' && typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem('rassini_redirect_url', targetUrl);
+                }
+                if (item.openInNewTab && item.authType !== 'OIDC') {
+                    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    window.location.href = targetUrl;
+                }
+            }
+            return;
+        }
+
+        this.layoutService.layoutState.update((val) => ({
+            ...val,
+            overlayMenuActive: false,
+            staticMenuMobileActive: false,
+            mobileMenuActive: false,
+            menuHoverActive: false
+        }));
     }
 }
