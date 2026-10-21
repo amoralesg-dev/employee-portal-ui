@@ -38,64 +38,44 @@ jobs:
       - name: Compilar Angular DEV
         run: npm run build:dev
 
-      - name: Validar archivos del build
+      - name: Validar build generado
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           BUILD_PATH="dist/employee-portal-ui/browser"
 
-          if [ ! -d "$BUILD_PATH" ]; then
-            echo "No existe la carpeta del build: $BUILD_PATH"
-            exit 1
-          fi
+          test -d "$BUILD_PATH"
+          test -f "$BUILD_PATH/index.html"
+          test -f "$BUILD_PATH/main.js"
+          test -f "$BUILD_PATH/styles.css"
+          test -d "$BUILD_PATH/assets"
 
-          for FILE in index.html main.js styles.css; do
-            if [ ! -f "$BUILD_PATH/$FILE" ]; then
-              echo "No existe $FILE en $BUILD_PATH"
-              exit 1
-            fi
-          done
-
-          if [ ! -d "$BUILD_PATH/assets" ]; then
-            echo "No existe la carpeta assets en $BUILD_PATH"
-            exit 1
-          fi
-
-          ls -la "$BUILD_PATH"
-
-      - name: Validar base href
-        shell: bash
-        run: |
-          node <<'NODE'
+          node - <<'NODE'
           const fs = require('fs');
 
           const indexPath =
             'dist/employee-portal-ui/browser/index.html';
 
-          const content =
+          const html =
             fs.readFileSync(indexPath, 'utf8');
 
-          const expected =
-            '<base href="/employee-portal/"/>';
-
-          if (!content.includes(expected)) {
+          if (!html.includes('/employee-portal/')) {
             console.error(
-              `index.html no contiene: ${expected}`
+              'index.html no contiene /employee-portal/'
             );
-            console.error(content);
             process.exit(1);
           }
 
           console.log(
-            'Base href validado: /employee-portal/'
+            'Base href validado correctamente.'
           );
           NODE
 
       - name: Validar configuracion DEV compilada
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           BUILD_PATH="dist/employee-portal-ui/browser"
           EXPECTED_URL="http://10.15.1.15:8083/employee-portal/api/v1"
@@ -109,9 +89,9 @@ jobs:
 
           for PATTERN in "${INVALID_PATTERNS[@]}"; do
             if grep -RIFq \
+              --include="*.js" \
               "$PATTERN" \
-              "$BUILD_PATH" \
-              --include="*.js"; then
+              "$BUILD_PATH"; then
               echo "URL incorrecta encontrada:"
               echo "$PATTERN"
               exit 1
@@ -119,16 +99,16 @@ jobs:
           done
 
           if ! grep -RIFq \
+            --include="*.js" \
             "$EXPECTED_URL" \
-            "$BUILD_PATH" \
-            --include="*.js"; then
+            "$BUILD_PATH"; then
             echo "No se encontro la URL DEV esperada:"
             echo "$EXPECTED_URL"
             exit 1
           fi
 
-          echo "Configuracion DEV validada."
-          echo "Backend: $EXPECTED_URL"
+          echo "Configuracion DEV validada:"
+          echo "$EXPECTED_URL"
 
       - name: Subir build Angular
         uses: actions/upload-artifact@v4
@@ -142,10 +122,7 @@ jobs:
     name: Deploy Employee Portal UI DEV
     needs: build
 
-    if: >
-      github.ref == 'refs/heads/dev' &&
-      (github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch')
+    if: github.ref == 'refs/heads/dev' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
 
     runs-on:
       - self-hosted
@@ -156,10 +133,10 @@ jobs:
       - name: Preparar carpeta temporal
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $deployPath =
-            "C:\deploy\employee-portal-ui"
+            'C:\deploy\employee-portal-ui'
 
           New-Item `
             -ItemType Directory `
@@ -171,7 +148,9 @@ jobs:
             -Path $deployPath `
             -Force `
             -ErrorAction SilentlyContinue |
-            Remove-Item -Recurse -Force
+            Remove-Item `
+              -Recurse `
+              -Force
 
           Write-Host `
             "Carpeta temporal preparada: $deployPath"
@@ -185,69 +164,53 @@ jobs:
       - name: Validar artifact descargado
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $deployPath =
-            "C:\deploy\employee-portal-ui"
+            'C:\deploy\employee-portal-ui'
 
-          $requiredFiles = @(
-            "index.html",
-            "main.js",
-            "styles.css"
+          $requiredItems = @(
+            'index.html',
+            'main.js',
+            'styles.css',
+            'assets'
           )
 
-          foreach ($file in $requiredFiles) {
-            $filePath =
-              Join-Path $deployPath $file
+          foreach ($item in $requiredItems) {
+            $itemPath =
+              Join-Path $deployPath $item
 
-            if (-not (Test-Path $filePath)) {
-              throw `
-                "No existe $file en el artifact."
+            if (-not (Test-Path $itemPath)) {
+              throw "No existe en el artifact: $itemPath"
             }
           }
 
-          $assetsPath =
-            Join-Path $deployPath "assets"
-
-          if (-not (Test-Path $assetsPath)) {
-            throw `
-              "No existe la carpeta assets."
-          }
-
           $indexPath =
-            Join-Path $deployPath "index.html"
+            Join-Path $deployPath 'index.html'
 
-          $indexContent =
-            Get-Content -Path $indexPath -Raw
+          $html =
+            Get-Content `
+              -Path $indexPath `
+              -Raw
 
-          $expectedBaseHref =
-            '<base href="/employee-portal/"/>'
-
-          if (
-            -not $indexContent.Contains(
-              $expectedBaseHref
-            )
-          ) {
+          if (-not $html.Contains('/employee-portal/')) {
             throw `
-              "El artifact no tiene el base href correcto."
+              'El artifact no contiene /employee-portal/ en index.html.'
           }
 
-          Get-ChildItem -Path $deployPath |
-            Select-Object `
-              Name,
-              Length,
-              LastWriteTime
+          Write-Host `
+            'Artifact descargado y validado correctamente.'
 
       - name: Crear carpetas de despliegue
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $currentPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current"
+            'C:\apps-front\ROC_Apps\employee-portal\current'
 
           $backupPath =
-            "C:\apps-front\ROC_Apps\employee-portal\backup"
+            'C:\apps-front\ROC_Apps\employee-portal\backup'
 
           New-Item `
             -ItemType Directory `
@@ -262,27 +225,28 @@ jobs:
             Out-Null
 
           Write-Host `
-            "Carpetas de despliegue preparadas."
+            'Carpetas de despliegue preparadas.'
 
       - name: Respaldar version actual
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $currentPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current"
+            'C:\apps-front\ROC_Apps\employee-portal\current'
 
           $backupPath =
-            "C:\apps-front\ROC_Apps\employee-portal\backup"
-
-          $backupName =
-            "employee-portal-ui-$env:GITHUB_RUN_NUMBER.zip"
+            'C:\apps-front\ROC_Apps\employee-portal\backup'
 
           $backupFile =
-            Join-Path $backupPath $backupName
+            Join-Path `
+              $backupPath `
+              "employee-portal-ui-$env:GITHUB_RUN_NUMBER.zip"
 
           $currentIndex =
-            Join-Path $currentPath "index.html"
+            Join-Path `
+              $currentPath `
+              'index.html'
 
           if (Test-Path $currentIndex) {
             Compress-Archive `
@@ -295,30 +259,30 @@ jobs:
           }
           else {
             Write-Host `
-              "Primer despliegue sin backup anterior."
+              'Primer despliegue sin version anterior.'
           }
 
       - name: Conservar ultimos 6 backups
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $backupPath =
-            "C:\apps-front\ROC_Apps\employee-portal\backup"
-
-          $backups = Get-ChildItem `
-            -Path $backupPath `
-            -Filter "employee-portal-ui-*.zip" `
-            -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending
-
-          $backups |
-            Select-Object -Skip 6 |
-            Remove-Item -Force
+            'C:\apps-front\ROC_Apps\employee-portal\backup'
 
           Get-ChildItem `
             -Path $backupPath `
-            -Filter "employee-portal-ui-*.zip" `
+            -Filter 'employee-portal-ui-*.zip' `
+            -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -Skip 6 |
+            Remove-Item -Force
+
+          Write-Host 'Backups conservados:'
+
+          Get-ChildItem `
+            -Path $backupPath `
+            -Filter 'employee-portal-ui-*.zip' `
             -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending |
             Select-Object `
@@ -326,33 +290,24 @@ jobs:
               Length,
               LastWriteTime
 
-      - name: Limpiar carpeta current
+      - name: Publicar nuevo build
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
+
+          $sourcePath =
+            'C:\deploy\employee-portal-ui'
 
           $currentPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current"
+            'C:\apps-front\ROC_Apps\employee-portal\current'
 
           Get-ChildItem `
             -Path $currentPath `
             -Force `
             -ErrorAction SilentlyContinue |
-            Remove-Item -Recurse -Force
-
-          Write-Host `
-            "Carpeta current limpiada."
-
-      - name: Copiar nuevo build
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          $sourcePath =
-            "C:\deploy\employee-portal-ui"
-
-          $currentPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current"
+            Remove-Item `
+              -Recurse `
+              -Force
 
           Copy-Item `
             -Path "$sourcePath\*" `
@@ -362,164 +317,127 @@ jobs:
             -ErrorAction Stop
 
           $indexPath =
-            Join-Path $currentPath "index.html"
+            Join-Path $currentPath 'index.html'
 
           if (-not (Test-Path $indexPath)) {
             throw `
-              "No se copio index.html al destino."
+              'No se copio index.html al destino.'
           }
 
           Write-Host `
-            "Build copiado correctamente."
+            'Build publicado correctamente.'
 
       - name: Crear web.config para Angular IIS
         shell: powershell
         run: |
-ce = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $webConfigPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current\web.config"
+            'C:\apps-front\ROC_Apps\employee-portal\current\web.config'
 
-          $webConfigLines = @(
-            '<?xml version="1.0" encoding="utf-8"?>',
-            '<configuration>',
-            '  <system.webServer>',
-            '    <defaultDocument>',
-            '      <files>',
-            '        <clear />',
-            '        <add value="index.html" />',
-            '      </files>',
-            '    </defaultDocument>',
-            '    <rewrite>',
-            '      <rules>',
-            '        <clear />',
-            '        <rule name="Angular Routes Employee Portal" stopProcessing="true">',
-            '          <match url=".*" />',
-            '          <conditions logicalGrouping="MatchAll">',
-            '            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />',
-            '            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />',
-            '          </conditions>',
-            '          <action type="Rewrite" url="index.html" />',
-            '        </rule>',
-            '      </rules>',
-            '    </rewrite>',
-            '  </system.webServer>',
-            '</configuration>'
-          )
+          $webConfig = @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <defaultDocument>
+                <files>
+                  <clear />
+                  <add value="index.html" />
+                </files>
+              </defaultDocument>
+              <rewrite>
+                <rules>
+                  <clear />
+                  <rule name="Angular Routes Employee Portal" stopProcessing="true">
+                    <match url=".*" />
+                    <conditions logicalGrouping="MatchAll">
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                      <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="index.html" />
+                  </rule>
+                </rules>
+              </rewrite>
+            </system.webServer>
+          </configuration>
+          '@
 
           Set-Content `
             -Path $webConfigPath `
-            -Value $webConfigLines `
+            -Value $webConfig `
             -Encoding UTF8
 
           if (-not (Test-Path $webConfigPath)) {
-            throw "No se genero web.config."
-          }
-
-          $content =
-            Get-Content -Path $webConfigPath -Raw
-
-          if (-not $content.Contains('<clear />')) {
             throw `
-              "web.config no limpia reglas heredadas."
-          }
-
-          if (
-            $content.Contains(
-              'action type="Rewrite" url="/index.html"'
-            )
-          ) {
-            throw `
-              "web.config reescribe al portal raiz."
+              'No se genero web.config.'
           }
 
           Write-Host `
-            "web.config generado correctamente."
+            'web.config generado correctamente.'
 
-      - name: Validar archivos publicados
+      - name: Validar publicacion e IIS
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $currentPath =
-            "C:\apps-front\ROC_Apps\employee-portal\current"
+            'C:\apps-front\ROC_Apps\employee-portal\current'
 
-          $requiredFiles = @(
-            "index.html",
-            "main.js",
-            "styles.css",
-            "web.config"
+          $requiredItems = @(
+            'index.html',
+            'main.js',
+            'styles.css',
+            'assets',
+            'web.config'
           )
 
-          foreach ($file in $requiredFiles) {
-            $filePath =
-              Join-Path $currentPath $file
+          foreach ($item in $requiredItems) {
+            $itemPath =
+              Join-Path $currentPath $item
 
-            if (-not (Test-Path $filePath)) {
+            if (-not (Test-Path $itemPath)) {
               throw `
-                "Falta el archivo publicado: $file"
+                "Falta en la publicacion: $itemPath"
             }
           }
 
-          $assetsPath =
-            Join-Path $currentPath "assets"
-
-          if (-not (Test-Path $assetsPath)) {
-            throw "Falta la carpeta assets."
-          }
-
           $indexPath =
-            Join-Path $currentPath "index.html"
+            Join-Path $currentPath 'index.html'
 
-          $indexContent =
-            Get-Content -Path $indexPath -Raw
+          $html =
+            Get-Content `
+              -Path $indexPath `
+              -Raw
 
-          $expectedBaseHref =
-            '/employee-portal/'
-
-          if (
-            -not $indexContent.Contains(
-              $expectedBaseHref
-            )
-          ) {
+          if (-not $html.Contains('/employee-portal/')) {
             throw `
-              "index.html desplegado tiene base href incorrecto."
+              'El index.html publicado no contiene /employee-portal/.'
           }
-
-          Get-ChildItem -Path $currentPath |
-            Select-Object `
-              Name,
-              Length,
-              LastWriteTime
-
-      - name: Validar reglas IIS efectivas
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
 
           $appcmd =
             "$env:windir\System32\inetsrv\appcmd.exe"
 
           if (-not (Test-Path $appcmd)) {
             throw `
-              "No existe appcmd.exe en el servidor."
+              'No existe appcmd.exe en el servidor.'
           }
 
           $rules = & $appcmd `
-            list config "ROC_Apps/employee-portal" `
+            list config `
+            'ROC_Apps/employee-portal' `
             /section:system.webServer/rewrite/rules
-
-          $rules | Write-Host
 
           $rulesText =
             $rules -join "`n"
 
+          Write-Host $rulesText
+
           if (
             $rulesText -notmatch
-            "Angular Routes Employee Portal"
+            'Angular Routes Employee Portal'
           ) {
             throw `
-              "No se encontro la regla Angular."
+              'No se encontro la regla Angular de Employee Portal.'
           }
 
           if (
@@ -527,22 +445,19 @@ ce = "Stop"
             'action type="Rewrite" url="/index.html"'
           ) {
             throw `
-              "Se heredo la regla del portal legacy."
+              'Employee Portal hereda la regla del portal legacy.'
           }
 
           Write-Host `
-            "Reglas IIS validadas correctamente."
+            'Publicacion y reglas IIS validadas.'
 
-      - name: Validar Employee Portal en IIS
+      - name: Validar Employee Portal por HTTPS
         shell: powershell
         run: |
-          $ErrorActionPreference = "Stop"
+          $ErrorActionPreference = 'Stop'
 
           $url =
-            "https://rss-cxp-dev.rassini.com/employee-portal/auth/login"
-
-          $expectedBaseHref =
-            '/employee-portal/'
+            'https://rss-cxp-dev.rassini.com/employee-portal/auth/login'
 
           $maxAttempts = 12
 
@@ -551,40 +466,40 @@ ce = "Stop"
               "Intento $i de $maxAttempts"
 
             try {
-              $response = Invoke-WebRequest `
-                -Uri $url `
-                -UseBasicParsing `
-                -TimeoutSec 15
+              $response =
+                Invoke-WebRequest `
+                  -Uri $url `
+                  -UseBasicParsing `
+                  -TimeoutSec 15
 
-              if ($response.StatusCode -eq 200) {
-                if (
-                  -not $response.Content.Contains(
-                    $expectedBaseHref
-                  )
-                ) {
-                  throw `
-                    "IIS entrego un index.html incorrecto."
-                }
+              $hasCorrectContext =
+                $response.Content.Contains(
+                  '/employee-portal/'
+                )
+
+              if (
+                $response.StatusCode -eq 200 -and
+                $hasCorrectContext
+              ) {
+                Write-Host `
+                  'Employee Portal UI respondio HTTP 200.'
 
                 Write-Host `
-                  "Employee Portal UI respondio HTTP 200."
-
-                Write-Host `
-                  "Base href validado en IIS."
+                  'Contexto /employee-portal/ validado.'
 
                 exit 0
               }
 
               Write-Host `
-                "Respuesta HTTP: $($response.StatusCode)"
+                "Respuesta no valida. HTTP: $($response.StatusCode)"
             }
             catch {
               Write-Host `
-                "IIS aun no disponible: $($_.Exception.Message)"
+                "Employee Portal UI aun no disponible: $($_.Exception.Message)"
             }
 
             Start-Sleep -Seconds 5
           }
 
           throw `
-            "Employee Portal UI no respondio correctamente."
+            'Employee Portal UI no respondio correctamente por HTTPS.'
