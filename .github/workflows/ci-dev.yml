@@ -87,6 +87,8 @@ jobs:
 
     runs-on:
       - self-hosted
+      - employee-portal-ui
+      - dev
 
     steps:
       - name: Preparar carpeta temporal
