@@ -183,8 +183,6 @@ export class AppLayout {
             return (
                 host === 'localhost' ||
                 host === '127.0.0.1' ||
-                host === '10.15.1.15' ||
-                host === '10.15.1.37' ||
                 host === 'rss-cxp-dev.rassini.com' ||
                 host.endsWith('.rassini.com')
             );
@@ -238,7 +236,11 @@ export class AppLayout {
     }
 
     async buildOidcAuthorizationUrl(parsedTarget: URL): Promise<string> {
-        const issuer = (environment.apiBaseUrl || '').replace(/\/api\/v1\/?$/, '');
+        const rawIssuer = (environment.apiBaseUrl || '/employee-portal/api/v1').replace(/\/api\/v1\/?$/, '');
+        const currentOrigin = typeof window !== 'undefined' && window.location ? window.location.origin : parsedTarget.origin;
+        const issuer = rawIssuer.startsWith('/')
+            ? `${currentOrigin}${rawIssuer}`
+            : rawIssuer;
         const targetPath = parsedTarget.pathname || '/';
         const isPortalCxpSubpath = targetPath === '/portal-cxp' || targetPath.startsWith('/portal-cxp/');
         const redirectUri = isPortalCxpSubpath

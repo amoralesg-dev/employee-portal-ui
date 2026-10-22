@@ -78,9 +78,10 @@ jobs:
           set -euo pipefail
 
           BUILD_PATH="dist/employee-portal-ui/browser"
-          EXPECTED_URL="http://10.15.1.15:8083/employee-portal/api/v1"
+          EXPECTED_URL="/employee-portal/api/v1"
 
           INVALID_PATTERNS=(
+            "http://10.15.1.15:8083"
             "http://localhost:8083/employee-portal"
             "http://localhost:8082/ms-pagos"
             "http://127.0.0.1:8083/employee-portal"
@@ -348,6 +349,26 @@ jobs:
               <rewrite>
                 <rules>
                   <clear />
+                  <rule name="ReverseProxyEmployeePortalApi" stopProcessing="true">
+                    <match url="^api/(.*)" />
+                    <action type="Rewrite" url="http://10.15.1.15:8083/employee-portal/api/{R:1}" logRewrittenUrl="true" />
+                  </rule>
+                  <rule name="ReverseProxyEmployeePortalOAuth2" stopProcessing="true">
+                    <match url="^oauth2/(.*)" />
+                    <action type="Rewrite" url="http://10.15.1.15:8083/employee-portal/oauth2/{R:1}" logRewrittenUrl="true" />
+                  </rule>
+                  <rule name="ReverseProxyEmployeePortalWellKnown" stopProcessing="true">
+                    <match url="^\.well-known/(.*)" />
+                    <action type="Rewrite" url="http://10.15.1.15:8083/employee-portal/.well-known/{R:1}" logRewrittenUrl="true" />
+                  </rule>
+                  <rule name="ReverseProxyEmployeePortalUserInfo" stopProcessing="true">
+                    <match url="^userinfo$" />
+                    <action type="Rewrite" url="http://10.15.1.15:8083/employee-portal/userinfo" logRewrittenUrl="true" />
+                  </rule>
+                  <rule name="ReverseProxyEmployeePortalConnect" stopProcessing="true">
+                    <match url="^connect/(.*)" />
+                    <action type="Rewrite" url="http://10.15.1.15:8083/employee-portal/connect/{R:1}" logRewrittenUrl="true" />
+                  </rule>
                   <rule name="Angular Routes Employee Portal" stopProcessing="true">
                     <match url=".*" />
                     <conditions logicalGrouping="MatchAll">
@@ -432,12 +453,19 @@ jobs:
 
           Write-Host $rulesText
 
-          if (
-            $rulesText -notmatch
+          $requiredRules = @(
+            'ReverseProxyEmployeePortalApi',
+            'ReverseProxyEmployeePortalOAuth2',
+            'ReverseProxyEmployeePortalWellKnown',
+            'ReverseProxyEmployeePortalUserInfo',
+            'ReverseProxyEmployeePortalConnect',
             'Angular Routes Employee Portal'
-          ) {
-            throw `
-              'No se encontro la regla Angular de Employee Portal.'
+          )
+
+          foreach ($ruleName in $requiredRules) {
+            if ($rulesText -notmatch [regex]::Escape($ruleName)) {
+              throw "No se encontro la regla requerida en IIS: $ruleName"
+            }
           }
 
           if (
