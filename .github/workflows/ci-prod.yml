@@ -452,21 +452,13 @@ jobs:
               'El index.html publicado no contiene /employee-portal/.'
           }
 
-          $appcmd =
-            "$env:windir\System32\inetsrv\appcmd.exe"
-
-          if (-not (Test-Path $appcmd)) {
-            throw `
-              'No existe appcmd.exe en el servidor.'
-          }
-
-          $rules = & $appcmd `
-            list config `
-            'ROC_Apps/employee-portal' `
-            /section:system.webServer/rewrite/rules
+          $webConfigPath =
+            Join-Path $currentPath 'web.config'
 
           $rulesText =
-            $rules -join "`n"
+            Get-Content `
+              -Path $webConfigPath `
+              -Raw
 
           Write-Host $rulesText
 
@@ -481,7 +473,7 @@ jobs:
 
           foreach ($ruleName in $requiredRules) {
             if ($rulesText -notmatch [regex]::Escape($ruleName)) {
-              throw "No se encontro la regla requerida en IIS: $ruleName"
+              throw "No se encontro la regla requerida en web.config: $ruleName"
             }
           }
 
@@ -490,7 +482,7 @@ jobs:
             'action type="Rewrite" url="/index.html"'
           ) {
             throw `
-              'Employee Portal hereda la regla del portal legacy.'
+              'Employee Portal contiene la regla del portal legacy.'
           }
 
           Write-Host `
