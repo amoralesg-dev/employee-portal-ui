@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Auth, RassiniLogin } from '@rassini/rassini-ui';
+import { Auth, RassiniLogin, RassiniTranslatePipe } from '@rassini/rassini-ui';
 import { Router } from '@angular/router';
 
 /**
@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, RassiniLogin],
+    imports: [CommonModule, RassiniLogin, RassiniTranslatePipe],
     styles: [`
         .login-wrapper {
             position: relative;
@@ -57,9 +57,9 @@ import { Router } from '@angular/router';
             -->
             <div class="forgot-password-bar">
                 <a href="javascript:void(0)" title="Funcionalidad pendiente de implementación en backend">
-                    ¿Olvidaste tu contraseña?
+                    {{ 'rassini.auth.login.forgotPassword' | ruiTranslate:'¿Olvidaste tu contraseña?' }}
                 </a>
-                <small>Contacta al administrador del sistema</small>
+                <small>{{ 'rassini.auth.login.contactAdmin' | ruiTranslate:'Contacta al administrador del sistema' }}</small>
             </div>
         </div>
     `
