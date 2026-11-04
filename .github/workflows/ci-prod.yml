@@ -488,15 +488,14 @@ jobs:
           Write-Host `
             'Publicacion y reglas IIS validadas.'
 
-      - name: Validar Employee Portal en IIS PROD
+      - name: Validar Employee Portal por HTTPS
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
 
           $candidateUrls = @(
-            'https://rss-iam.rassini.com/employee-portal/auth/login',
-            'http://127.0.0.1:8080/employee-portal/auth/login',
-            'http://127.0.0.1/employee-portal/auth/login'
+            'https://rss-cxp.rassini.com/employee-portal/auth/login',
+            'http://127.0.0.1:8080/employee-portal/auth/login'
           )
 
           $maxAttempts = 12
@@ -531,8 +530,14 @@ jobs:
                   exit 0
                 }
 
-                Write-Host `
-                  "Respuesta no valida en $url. HTTP: $($response.StatusCode)"
+                if ($response.StatusCode -eq 200) {
+                  Write-Host `
+                    "HTTP 200 en $url (el sitio responde en puerto 8080 pero la aplicacion /employee-portal aun requiere su registro en IIS)."
+                }
+                else {
+                  Write-Host `
+                    "Respuesta no valida en $url. HTTP: $($response.StatusCode)"
+                }
               }
               catch {
                 Write-Host `
@@ -544,4 +549,4 @@ jobs:
           }
 
           throw `
-            'Employee Portal UI PROD no respondio correctamente en IIS.'
+            'Employee Portal UI PROD no respondio correctamente por HTTPS.'
