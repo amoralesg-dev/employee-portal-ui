@@ -57,8 +57,12 @@ export class PermisoMenusComponent implements OnInit {
         // Flatten and build hierarchical paths
         const allMenusWithPaths = this.buildHierarchicalPaths(res.allMenusFlat);
         
-        // Filter out non-leaf menus (only route != null) and match applicationId
-        const leafMenus = allMenusWithPaths.filter(m => m.route != null && m.applicationId === this.permission.applicationId);
+        // Filter out non-leaf menus (route or externalUrl informed) and match applicationId
+        const leafMenus = allMenusWithPaths.filter(
+          m =>
+            (!!m.route?.trim() || !!m.externalUrl?.trim()) &&
+            m.applicationId === this.permission.applicationId
+        );
 
         const assignedIds = new Set(res.assigned.map(m => m.id));
         
