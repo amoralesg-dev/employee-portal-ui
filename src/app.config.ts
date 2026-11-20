@@ -1,10 +1,11 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
+import { catchError, of } from 'rxjs';
 import { appRoutes } from './app.routes';
 
-import { RassiniPreset, provideRassiniAuth, authInterceptor } from '@rassini/rassini-ui';
+import { Auth, RassiniPreset, provideRassiniAuth, authInterceptor } from '@rassini/rassini-ui';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 
@@ -40,6 +41,7 @@ export const appConfig: ApplicationConfig = {
             mfaDisableUrl: `${environment.apiBaseUrl}/auth/mfa/disable`
         }),
         providePrimeNG({ theme: { preset: RassiniPreset, options: { darkModeSelector: '.app-dark' } } }),
+        provideAppInitializer(() => inject(Auth).restoreSession().pipe(catchError(() => of(null)))),
         MessageService,ConfirmationService
     ]
 };

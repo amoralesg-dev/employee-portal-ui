@@ -1,5 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { Auth } from '@rassini/rassini-ui';
+import { catchError, map, of } from 'rxjs';
 import { PermissionService } from '../services/permission.service';
 
 /**
@@ -15,14 +17,22 @@ import { PermissionService } from '../services/permission.service';
  */
 export function permissionGuard(requiredPermission: string): CanActivateFn {
   return () => {
+    const auth = inject(Auth);
     const permissionService = inject(PermissionService);
     const router = inject(Router);
 
-    if (permissionService.hasPermission(requiredPermission)) {
-      return true;
+    const evaluate = () =>
+      permissionService.hasPermission(requiredPermission)
+        ? true
+        : router.createUrlTree(['/notfound']);
+
+    if (auth.sessionRestored()) {
+      return evaluate();
     }
 
-    router.navigate(['/notfound']);
-    return false;
+    return auth.restoreSession().pipe(
+      map(() => evaluate()),
+      catchError(() => of(router.createUrlTree(['/notfound'])))
+    );
   };
 }
