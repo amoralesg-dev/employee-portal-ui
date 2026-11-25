@@ -3,86 +3,70 @@ export const DASHBOARD_I18N = {
     employee: {
       dashboard: {
         title: 'Portal Empresarial Rassini',
-        subtitle: 'Bienvenido a la plataforma central de servicios, herramientas y aplicaciones corporativas',
-        session: {
-          title: 'Sesión Corporativa Activa',
-          user: 'Usuario',
-          email: 'Correo',
-          businessUnits: 'Business Units',
-          roles: 'Roles',
-          allBus: 'Todas (ALL)',
+        subtitle: 'Comunicación interna, avisos y accesos corporativos',
+        greeting: {
+          morning: 'Buenos días',
+          afternoon: 'Buenas tardes',
+          evening: 'Buenas noches',
+          subtitle: 'Consulta las novedades, campañas y eventos más recientes de Rassini.',
           defaultUser: 'Colaborador'
         },
-        quickAccess: {
-          title: 'Accesos Rápidos',
-          directory: {
-            title: 'Directorio',
-            description: 'Encuentra y contacta a colaboradores de todas las plantas y sedes.'
-          },
-          vacations: {
-            title: 'Vacaciones',
-            description: 'Solicita, revisa tu saldo y gestiona periodos de días libres.'
-          },
-          payroll: {
-            title: 'Recibos Nómina',
-            description: 'Consulta y descarga tus comprobantes y timbrados fiscales.'
-          },
-          support: {
-            title: 'Soporte IT',
-            description: 'Mesa de ayuda y reporte de incidentes tecnológicos.'
-          },
-          benefits: {
-            title: 'Beneficios',
-            description: 'Descubre convenios institucionales, salud y descuentos.'
-          }
+        sections: {
+          news: 'Noticias Destacadas',
+          quickAccess: 'Accesos Rápidos',
+          campaigns: 'Campañas Activas',
+          weeklyInfo: 'Lo que necesitas saber esta semana',
+          events: 'Próximos Eventos',
+          notices: 'Avisos'
         },
-        news: {
-          title: 'Noticia Principal',
-          item1: {
-            title: 'Nueva Política de Trabajo Remoto',
-            summary: 'Revisa las actualizaciones sobre nuestros días de home office y flexibilidad.'
-          }
+        categories: {
+          SEGURIDAD: 'Seguridad',
+          PERSONAS: 'Personas',
+          NEGOCIO: 'Negocio',
+          CULTURA: 'Cultura'
         },
-        announcements: {
-          title: 'Comunicados',
-          item1: {
-            title: 'Mantenimiento del ERP',
-            content: 'El sistema SAP no estará disponible durante 2 horas.',
-            date: 'Esta noche, 22:00 hrs'
-          },
-          item2: {
-            title: 'Encuesta de Clima Laboral',
-            content: 'Tu opinión es importante, recuerda completarla.',
-            date: 'Hasta el viernes'
-          }
+        types: {
+          HERO_NEWS: 'Noticia principal',
+          NEWS: 'Noticia',
+          CAMPAIGN: 'Campaña',
+          WEEKLY_INFO: 'Lo que necesitas saber esta semana',
+          EVENT: 'Evento',
+          QUICK_ACCESS: 'Acceso rápido',
+          NOTICE: 'Aviso'
         },
-        events: {
-          title: 'Próximos Eventos',
-          item1: {
-            title: 'Townhall Q3',
-            monthBadge: 'SEP',
-            dayBadge: '15',
-            location: 'Auditorio Principal / Teams'
-          },
-          item2: {
-            title: 'Torneo de Fútbol',
-            monthBadge: 'SEP',
-            dayBadge: '22',
-            location: 'Canchas Deportivas Sur'
-          }
+        statuses: {
+          DRAFT: 'Borrador',
+          PUBLISHED: 'Publicado',
+          ACTIVE: 'Activo',
+          SCHEDULED: 'Programado',
+          EXPIRED: 'Vencido',
+          INACTIVE: 'Inactivo'
         },
-        birthdays: {
-          title: 'Cumpleaños de la Semana',
-          roles: {
-            finance: 'Finanzas',
-            operations: 'Operaciones',
-            it: 'Sistemas'
-          },
-          dates: {
-            today: 'Hoy',
-            tomorrow: 'Mañana',
-            thursday: 'Jueves'
-          }
+        event: {
+          joinTeams: 'Unirse por Teams',
+          addToCalendar: 'Agregar al calendario',
+          rsvpTitle: '¿Asistirás?',
+          rsvpGoing: 'Sí, asistiré',
+          rsvpNotGoing: 'No podré asistir',
+          rsvpSaved: 'Respuesta guardada',
+          rsvpClosed: 'Este evento ya no admite cambios en tu confirmación.',
+          viewResponses: 'Ver confirmaciones',
+          goingCount: 'Asistirán',
+          notGoingCount: 'No podrán asistir',
+          attendeesEmpty: 'Aún no hay confirmaciones registradas.',
+          attendeeName: 'Colaborador',
+          attendeeEmail: 'Correo',
+          attendeeStatus: 'Respuesta',
+          attendeeDate: 'Fecha de respuesta'
+        },
+        readMore: 'Leer más',
+        openLink: 'Abrir enlace',
+        loading: 'Cargando contenido...',
+        empty: 'Aún no hay contenido publicado para tu perfil.',
+        detail: {
+          title: 'Detalle de publicación',
+          back: 'Volver al inicio',
+          notFound: 'El contenido no está disponible o ha expirado.'
         }
       }
     }
@@ -91,86 +75,70 @@ export const DASHBOARD_I18N = {
     employee: {
       dashboard: {
         title: 'Rassini Employee Portal',
-        subtitle: 'Welcome to the central platform for corporate services, tools, and applications',
-        session: {
-          title: 'Active Corporate Session',
-          user: 'User',
-          email: 'Email',
-          businessUnits: 'Business Units',
-          roles: 'Roles',
-          allBus: 'All (ALL)',
-          defaultUser: 'Employee'
+        subtitle: 'Internal communications, notices and corporate shortcuts',
+        greeting: {
+          morning: 'Good morning',
+          afternoon: 'Good afternoon',
+          evening: 'Good evening',
+          subtitle: 'Stay up to date with the latest Rassini news, campaigns and events.',
+          defaultUser: 'Team Member'
         },
-        quickAccess: {
-          title: 'Quick Access',
-          directory: {
-            title: 'Directory',
-            description: 'Find and contact colleagues across all plants and sites.'
-          },
-          vacations: {
-            title: 'Vacation',
-            description: 'Request, check your balance, and manage time off.'
-          },
-          payroll: {
-            title: 'Payroll Receipts',
-            description: 'View and download your payment receipts and tax vouchers.'
-          },
-          support: {
-            title: 'IT Support',
-            description: 'Help desk and technical incident reporting.'
-          },
-          benefits: {
-            title: 'Benefits',
-            description: 'Explore corporate partnerships, healthcare, and discounts.'
-          }
+        sections: {
+          news: 'Featured News',
+          quickAccess: 'Quick Access',
+          campaigns: 'Active Campaigns',
+          weeklyInfo: 'What you need to know this week',
+          events: 'Upcoming Events',
+          notices: 'Notices'
         },
-        news: {
-          title: 'Main News',
-          item1: {
-            title: 'New Remote Work Policy',
-            summary: 'Review updates regarding our home office days and schedule flexibility.'
-          }
+        categories: {
+          SEGURIDAD: 'Safety',
+          PERSONAS: 'People',
+          NEGOCIO: 'Business',
+          CULTURA: 'Culture'
         },
-        announcements: {
-          title: 'Announcements',
-          item1: {
-            title: 'ERP Maintenance',
-            content: 'The SAP system will be unavailable for 2 hours.',
-            date: 'Tonight, 22:00 hrs'
-          },
-          item2: {
-            title: 'Workplace Climate Survey',
-            content: 'Your feedback matters, remember to complete it.',
-            date: 'Until Friday'
-          }
+        types: {
+          HERO_NEWS: 'Main news',
+          NEWS: 'News',
+          CAMPAIGN: 'Campaign',
+          WEEKLY_INFO: 'What you need to know this week',
+          EVENT: 'Event',
+          QUICK_ACCESS: 'Quick access',
+          NOTICE: 'Notice'
         },
-        events: {
-          title: 'Upcoming Events',
-          item1: {
-            title: 'Townhall Q3',
-            monthBadge: 'SEP',
-            dayBadge: '15',
-            location: 'Main Auditorium / Teams'
-          },
-          item2: {
-            title: 'Soccer Tournament',
-            monthBadge: 'SEP',
-            dayBadge: '22',
-            location: 'South Sports Fields'
-          }
+        statuses: {
+          DRAFT: 'Draft',
+          PUBLISHED: 'Published',
+          ACTIVE: 'Active',
+          SCHEDULED: 'Scheduled',
+          EXPIRED: 'Expired',
+          INACTIVE: 'Inactive'
         },
-        birthdays: {
-          title: 'Birthdays of the Week',
-          roles: {
-            finance: 'Finance',
-            operations: 'Operations',
-            it: 'IT Systems'
-          },
-          dates: {
-            today: 'Today',
-            tomorrow: 'Tomorrow',
-            thursday: 'Thursday'
-          }
+        event: {
+          joinTeams: 'Join on Teams',
+          addToCalendar: 'Add to calendar',
+          rsvpTitle: 'Will you attend?',
+          rsvpGoing: 'Yes, I will attend',
+          rsvpNotGoing: 'I will not be able to attend',
+          rsvpSaved: 'Response saved',
+          rsvpClosed: 'This event no longer accepts attendance changes.',
+          viewResponses: 'View responses',
+          goingCount: 'Attending',
+          notGoingCount: 'Not attending',
+          attendeesEmpty: 'No responses recorded yet.',
+          attendeeName: 'Employee',
+          attendeeEmail: 'Email',
+          attendeeStatus: 'Response',
+          attendeeDate: 'Response date'
+        },
+        readMore: 'Read more',
+        openLink: 'Open link',
+        loading: 'Loading content...',
+        empty: 'There is no published content for your profile yet.',
+        detail: {
+          title: 'Publication detail',
+          back: 'Back to home',
+          notFound: 'This content is unavailable or has expired.'
         }
       }
     }

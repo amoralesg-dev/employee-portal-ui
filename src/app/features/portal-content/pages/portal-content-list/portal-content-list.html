@@ -1,0 +1,148 @@
+<app-page-header
+  title="Contenido del Portal"
+  subtitle="Administración de noticias, campañas, eventos, avisos y accesos rápidos del homepage"
+  icon="pi pi-megaphone">
+</app-page-header>
+
+<app-page-toolbar>
+  <div class="flex flex-wrap gap-2 items-center">
+    <p-select [(ngModel)]="filterType" [options]="typeOptions" optionLabel="label" optionValue="value" (onChange)="loadItems()" />
+    <p-select [(ngModel)]="filterStatus" [options]="statusOptions" optionLabel="label" optionValue="value" (onChange)="loadItems()" />
+    <p-select [(ngModel)]="filterCategory" [options]="categoryOptions" optionLabel="label" optionValue="value" (onChange)="loadItems()" />
+    <input pInputText [(ngModel)]="filterQuery" placeholder="Buscar por título..." (keyup.enter)="loadItems()" />
+    <p-button icon="pi pi-search" severity="secondary" (onClick)="loadItems()" />
+  </div>
+  <div>
+    @if (canCreate) {
+      <p-button label="Nuevo contenido" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
+  </div>
+</app-page-toolbar>
+
+<app-page-content>
+  <p-table [value]="items" [loading]="loading" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+    <ng-template #header>
+      <tr>
+        <th>Orden</th>
+        <th>Título (ES)</th>
+        <th>Tipo</th>
+        <th>Categoría</th>
+        <th>Estado</th>
+        <th>Vigencia</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-item>
+      <tr>
+        <td>{{ item.priority }}</td>
+        <td>{{ getEsTitle(item) }}</td>
+        <td>{{ getTypeLabel(item.contentType) }}</td>
+        <td>{{ getCategoryLabel(item.category) }}</td>
+        <td>
+          <p-tag [value]="getStatusLabel(item.displayStatus || item.status)" [severity]="getStatusSeverity(item.displayStatus)" />
+        </td>
+        <td>
+          <small>{{ item.publishFrom ? (item.publishFrom | date:'short') : 'Inmediata' }} — {{ item.publishTo ? (item.publishTo | date:'short') : 'Sin fin' }}</small>
+        </td>
+        <td>
+          <div class="flex gap-1">
+            @if (canUpdate) {
+              <p-button icon="pi pi-pencil" size="small" [text]="true" pTooltip="Editar" (onClick)="openEdit(item)" />
+            }
+            @if (canReadAttendance && item.contentType === 'EVENT') {
+              <p-button
+                icon="pi pi-users"
+                size="small"
+                [text]="true"
+                severity="info"
+                [pTooltip]="i18n.translate('employee.dashboard.event.viewResponses', 'Ver confirmaciones')"
+                (onClick)="openAttendance(item)" />
+            }
+            @if (canPublish && item.status !== 'PUBLISHED') {
+              <p-button icon="pi pi-upload" size="small" [text]="true" severity="success" pTooltip="Publicar" (onClick)="changeStatus(item, 'PUBLISHED')" />
+            }
+            @if (canPublish && item.status === 'PUBLISHED') {
+              <p-button icon="pi pi-eye-slash" size="small" [text]="true" severity="warn" pTooltip="Despublicar" (onClick)="changeStatus(item, 'INACTIVE')" />
+            }
+            @if (canDelete && item.status !== 'PUBLISHED') {
+              <p-button icon="pi pi-trash" size="small" [text]="true" severity="danger" pTooltip="Eliminar" (onClick)="confirmDelete(item)" />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [header]="selectedItem ? 'Editar contenido' : 'Nuevo contenido'"
+    [style]="{ width: '780px', maxWidth: '95vw' }">
+    <app-portal-content-form
+      [content]="selectedItem"
+      [audienceOptions]="audienceOptions"
+      [canUploadMedia]="canUploadMedia"
+      [saving]="saving"
+      (save)="onSave($event)"
+      (cancel)="dialogVisible = false" />
+  </p-dialog>
+
+  <p-dialog
+    [(visible)]="attendanceDialogVisible"
+    [modal]="true"
+    [header]="(i18n.translate('employee.dashboard.event.viewResponses', 'Ver confirmaciones')) + ' — ' + attendanceEventTitle"
+    [style]="{ width: '760px', maxWidth: '95vw' }">
+    @if (attendanceSummary; as summary) {
+      <div class="flex flex-wrap gap-3 mb-4">
+        <p-tag
+          severity="success"
+          [value]="i18n.translate('employee.dashboard.event.goingCount', 'Asistirán') + ': ' + summary.goingCount" />
+        <p-tag
+          severity="danger"
+          [value]="i18n.translate('employee.dashboard.event.notGoingCount', 'No podrán asistir') + ': ' + summary.notGoingCount" />
+      </div>
+    }
+    <p-table
+      [value]="attendanceSummary?.attendees?.content || []"
+      [loading]="attendanceLoading"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="attendanceSummary?.attendees?.totalElements || 0"
+      (onLazyLoad)="onAttendanceLazyLoad($event)"
+      responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ i18n.translate('employee.dashboard.event.attendeeName', 'Colaborador') }}</th>
+          <th>{{ i18n.translate('employee.dashboard.event.attendeeEmail', 'Correo') }}</th>
+          <th>{{ i18n.translate('employee.dashboard.event.attendeeStatus', 'Respuesta') }}</th>
+          <th>{{ i18n.translate('employee.dashboard.event.attendeeDate', 'Fecha de respuesta') }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row>
+        <tr>
+          <td>
+            <div class="font-semibold">{{ row.displayName || row.username }}</div>
+            @if (row.displayName) {
+              <small style="color: var(--ep-text-muted);">{{ row.username }}</small>
+            }
+          </td>
+          <td>{{ row.email }}</td>
+          <td>
+            <p-tag
+              [severity]="row.status === 'GOING' ? 'success' : 'danger'"
+              [value]="row.status === 'GOING' ? i18n.translate('employee.dashboard.event.rsvpGoing', 'Sí, asistiré') : i18n.translate('employee.dashboard.event.rsvpNotGoing', 'No podré asistir')" />
+          </td>
+          <td>{{ row.respondedAt | date:'short' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="4" class="text-center p-4" style="color: var(--ep-text-muted);">
+            {{ i18n.translate('employee.dashboard.event.attendeesEmpty', 'Aún no hay confirmaciones registradas.') }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-dialog>
+</app-page-content>
