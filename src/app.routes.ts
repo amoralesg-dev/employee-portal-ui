@@ -74,6 +74,12 @@ export const appRoutes: Routes = [
             },
 
             {
+                path: 'oauth-clients',
+                loadComponent: () => import('./app/features/oauth-clients/oauth-clients.component').then(m => m.OauthClientsComponent),
+                canActivate: [permissionGuard('OAUTH2_CLIENT_VIEW')]
+            },
+
+            {
                 path: 'permisos',
                 loadChildren: () =>
                     import('./app/features/permisos/permisos.routes'),
