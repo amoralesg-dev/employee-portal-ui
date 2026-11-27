@@ -191,9 +191,42 @@ export class AppLayout {
         }
     }
 
+    private resolveOidcAppCode(menu?: any, parsedTarget?: URL): string {
+        const explicitCode = typeof menu?.applicationCode === 'string' ? menu.applicationCode.trim() : '';
+        if (explicitCode) {
+            return explicitCode.toUpperCase();
+        }
+        const path = parsedTarget?.pathname || '';
+        if (path === '/portal-cxp' || path.startsWith('/portal-cxp/')) {
+            return 'MS_PAGOS';
+        }
+        const firstSegment = path.split('/').filter(Boolean)[0];
+        if (firstSegment) {
+            return firstSegment.toUpperCase().replace(/-/g, '_');
+        }
+        return 'DEFAULT_APP';
+    }
+
+    private resolveOidcClientId(menu?: any, appCode?: string): string {
+        const explicitClientId = typeof menu?.clientId === 'string' ? menu.clientId.trim() : '';
+        if (explicitClientId) {
+            return explicitClientId;
+        }
+        const normalizedCode = (appCode || 'DEFAULT_APP').toLowerCase().replace(/_/g, '-');
+        return `${normalizedCode}-client`;
+    }
+
+    private resolveOidcRedirectUri(parsedTarget: URL): string {
+        const segments = (parsedTarget.pathname || '/').split('/').filter(Boolean);
+        if (segments.length > 0) {
+            return `${parsedTarget.origin}/${segments[0]}/callback`;
+        }
+        return `${parsedTarget.origin}/callback`;
+    }
+
     /**
      * Inicia el flujo OIDC (Authorization Code + PKCE) para un menú externo con authType === 'OIDC'.
-     * Conserva resolvedUrl en sessionStorage para que el callback de la aplicación destino redirija a la ruta solicitada.
+     * Conserva resolvedUrl en sessionStorage bajo el namespace de la aplicación destino cuando comparten origin.
      */
     async launchOidcMenu(menu: any, event?: Event): Promise<string | null> {
         if (event) {
@@ -207,9 +240,21 @@ export class AppLayout {
             return null;
         }
 
+        const currentOrigin = typeof window !== 'undefined' && window.location ? window.location.origin : 'https://rss-cxp-dev.rassini.com';
+        const parsedTarget = new URL(targetUrl, currentOrigin);
+        const appCode = this.resolveOidcAppCode(menu, parsedTarget);
+
+        // Si en desarrollo local los orígenes difieren (ej. localhost:4200 vs localhost:4206),
+        // sessionStorage está aislado por puerto: NO escribir claves huérfanas en el origin actual;
+        // navegar al destino para que su propio rassiniAuthGuard genere PKCE y redirect en su propio origin.
+        if (parsedTarget.origin !== currentOrigin && !targetUrl.includes('/oauth2/authorize')) {
+            this.navigateToExternalUrl(targetUrl, '_self');
+            return targetUrl;
+        }
+
         if (typeof sessionStorage !== 'undefined') {
             sessionStorage.setItem('rassini_redirect_url', targetUrl);
-            sessionStorage.setItem('rassini_MS_PAGOS_rassini_redirect_url', targetUrl);
+            sessionStorage.setItem(`rassini_${appCode}_rassini_redirect_url`, targetUrl);
         }
 
         // Si el backend ya entregó directamente una URL de autorización /oauth2/authorize, usarla
@@ -218,34 +263,20 @@ export class AppLayout {
             return targetUrl;
         }
 
-        const currentOrigin = typeof window !== 'undefined' && window.location ? window.location.origin : 'https://rss-cxp-dev.rassini.com';
-        const parsedTarget = new URL(targetUrl, currentOrigin);
-
-        // Si en desarrollo local los orígenes difieren (ej. localhost:4205 vs localhost:4201),
-        // sessionStorage está aislado por puerto, por lo que navegamos al destino para que su rassiniAuthGuard
-        // genere PKCE en su propio origin y redirija a /oauth2/authorize.
-        // En DEV/QA/PROD (mismo origin https://rss-cxp-dev.rassini.com), iniciamos /oauth2/authorize directamente.
-        if (parsedTarget.origin !== currentOrigin) {
-            this.navigateToExternalUrl(targetUrl, '_self');
-            return targetUrl;
-        }
-
-        const authUrl = await this.buildOidcAuthorizationUrl(parsedTarget);
+        const authUrl = await this.buildOidcAuthorizationUrl(parsedTarget, menu);
         this.navigateToExternalUrl(authUrl, '_self');
         return authUrl;
     }
 
-    async buildOidcAuthorizationUrl(parsedTarget: URL): Promise<string> {
+    async buildOidcAuthorizationUrl(parsedTarget: URL, menu?: any): Promise<string> {
         const rawIssuer = (environment.apiBaseUrl || '/employee-portal/api/v1').replace(/\/api\/v1\/?$/, '');
         const currentOrigin = typeof window !== 'undefined' && window.location ? window.location.origin : parsedTarget.origin;
         const issuer = rawIssuer.startsWith('/')
             ? `${currentOrigin}${rawIssuer}`
             : rawIssuer;
-        const targetPath = parsedTarget.pathname || '/';
-        const isPortalCxpSubpath = targetPath === '/portal-cxp' || targetPath.startsWith('/portal-cxp/');
-        const redirectUri = isPortalCxpSubpath
-            ? `${parsedTarget.origin}/portal-cxp/callback`
-            : `${parsedTarget.origin}/callback`;
+        const appCode = this.resolveOidcAppCode(menu, parsedTarget);
+        const clientId = this.resolveOidcClientId(menu, appCode);
+        const redirectUri = this.resolveOidcRedirectUri(parsedTarget);
 
         const state = this.generateRandomString(32);
         const nonce = this.generateRandomString(32);
@@ -256,14 +287,14 @@ export class AppLayout {
             sessionStorage.setItem('rassini_auth_state', state);
             sessionStorage.setItem('rassini_auth_nonce', nonce);
             sessionStorage.setItem('rassini_auth_verifier', codeVerifier);
-            sessionStorage.setItem('rassini_MS_PAGOS_rassini_auth_state', state);
-            sessionStorage.setItem('rassini_MS_PAGOS_rassini_auth_nonce', nonce);
-            sessionStorage.setItem('rassini_MS_PAGOS_rassini_auth_verifier', codeVerifier);
+            sessionStorage.setItem(`rassini_${appCode}_rassini_auth_state`, state);
+            sessionStorage.setItem(`rassini_${appCode}_rassini_auth_nonce`, nonce);
+            sessionStorage.setItem(`rassini_${appCode}_rassini_auth_verifier`, codeVerifier);
         }
 
         const params = new URLSearchParams({
             response_type: 'code',
-            client_id: 'ms-pagos-client',
+            client_id: clientId,
             redirect_uri: redirectUri,
             scope: 'openid profile email roles permissions business_units',
             state,

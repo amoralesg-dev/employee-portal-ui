@@ -1,0 +1,40 @@
+{
+  "/employee-portal/api": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "info"
+  },
+  "/employee-portal/oauth2": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "info"
+  },
+  "/employee-portal/connect": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "info"
+  },
+  "/employee-portal/.well-known": {
+    "target": "http://localhost:8083",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "info"
+  },
+  "/portal-cxp": {
+    "target": "http://localhost:4201",
+    "secure": false,
+    "changeOrigin": false,
+    "ws": true,
+    "logLevel": "info"
+  },
+  "/poliza-electronica": {
+    "target": "http://localhost:4206",
+    "secure": false,
+    "changeOrigin": false,
+    "ws": true,
+    "logLevel": "info"
+  }
+}
