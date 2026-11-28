@@ -79,7 +79,8 @@
                             "buildTarget": "employee-portal-ui:build:production"
                         },
                         "development": {
-                            "buildTarget": "employee-portal-ui:build:development"
+                            "buildTarget": "employee-portal-ui:build:development",
+                            "proxyConfig": "proxy.conf.json"
                         }
                     },
                     "defaultConfiguration": "development"

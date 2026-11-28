@@ -50,16 +50,18 @@ describe('AppLayout & RassiniSidebar OIDC Menu Navigation', () => {
         const navigateByUrlSpy = vi.spyOn(router, 'navigateByUrl');
         const externalNavigateSpy = vi.spyOn(component, 'navigateToExternalUrl').mockImplementation(() => {});
 
+        const origin = window.location.origin;
         const oidcMenu = {
             code: 'CXP_PENDIENTES',
+            applicationCode: 'MS_PAGOS',
             label: 'Pagos Pendientes',
             icon: 'wallet',
             targetType: 'EXTERNO',
             authType: 'OIDC',
             appType: 'INTERNA',
             route: null,
-            externalUrl: 'https://rss-cxp-dev.rassini.com/portal-cxp/pagos-pendientes',
-            resolvedUrl: 'https://rss-cxp-dev.rassini.com/portal-cxp/pagos-pendientes',
+            externalUrl: `${origin}/portal-cxp/pagos-pendientes`,
+            resolvedUrl: `${origin}/portal-cxp/pagos-pendientes`,
             openInNewTab: false,
             children: []
         };
@@ -76,21 +78,50 @@ describe('AppLayout & RassiniSidebar OIDC Menu Navigation', () => {
         const sidebar = TestBed.runInInjectionContext(() => new RassiniSidebar());
         expect(sidebar.isInternalNavigation(transformed)).toBe(false);
 
-        // Ejecutar la construcción de autorización para el destino DEV
+        // Ejecutar la construcción de autorización para el destino
         const parsedTarget = new URL(oidcMenu.resolvedUrl);
-        const authUrl = await component.buildOidcAuthorizationUrl(parsedTarget);
+        const authUrl = await component.buildOidcAuthorizationUrl(parsedTarget, oidcMenu);
 
-        // Ejecutar launchOidcMenu simulando mismo origin o destino permitido
+        // Ejecutar launchOidcMenu simulando mismo origin
         await component.launchOidcMenu(oidcMenu);
 
         expect(navigateSpy).not.toHaveBeenCalled();
         expect(navigateByUrlSpy).not.toHaveBeenCalled();
         expect(externalNavigateSpy).toHaveBeenCalled();
-        expect(sessionStorage.getItem('rassini_redirect_url')).toBe('https://rss-cxp-dev.rassini.com/portal-cxp/pagos-pendientes');
+        expect(sessionStorage.getItem('rassini_redirect_url')).toBe(`${origin}/portal-cxp/pagos-pendientes`);
+        expect(sessionStorage.getItem('rassini_MS_PAGOS_rassini_redirect_url')).toBe(`${origin}/portal-cxp/pagos-pendientes`);
         expect(authUrl).toContain('/employee-portal/oauth2/authorize?');
         expect(authUrl).toContain('client_id=ms-pagos-client');
-        expect(authUrl).toContain(encodeURIComponent('https://rss-cxp-dev.rassini.com/portal-cxp/callback'));
+        expect(authUrl).toContain(encodeURIComponent(`${origin}/portal-cxp/callback`));
         expect(authUrl).toContain('code_challenge_method=S256');
+    });
+
+    it('1b. Menú OIDC POLIZA_ELECTRONICA: usa poliza-electronica-client, su propio namespace y NUNCA escribe claves MS_PAGOS', async () => {
+        const externalNavigateSpy = vi.spyOn(component, 'navigateToExternalUrl').mockImplementation(() => {});
+        const polizaMenu = {
+            code: 'POLIZA_PRESUPUESTO',
+            applicationCode: 'POLIZA_ELECTRONICA',
+            label: 'Presupuesto',
+            icon: 'file',
+            targetType: 'EXTERNO',
+            authType: 'OIDC',
+            appType: 'INTERNA',
+            route: null,
+            externalUrl: 'http://localhost:4206/presupuesto',
+            resolvedUrl: 'http://localhost:4206/presupuesto',
+            openInNewTab: false,
+            children: []
+        };
+
+        await component.launchOidcMenu(polizaMenu);
+        expect(externalNavigateSpy).toHaveBeenCalledWith('http://localhost:4206/presupuesto', '_self');
+        expect(sessionStorage.getItem('rassini_MS_PAGOS_rassini_redirect_url')).toBeNull();
+        expect(sessionStorage.getItem('rassini_redirect_url')).toBeNull();
+
+        const authUrl = await component.buildOidcAuthorizationUrl(new URL('http://localhost:4206/presupuesto'), polizaMenu);
+        expect(authUrl).toContain('client_id=poliza-electronica-client');
+        expect(sessionStorage.getItem('rassini_POLIZA_ELECTRONICA_rassini_auth_state')).not.toBeNull();
+        expect(sessionStorage.getItem('rassini_MS_PAGOS_rassini_auth_state')).toBeNull();
     });
 
     it('2. Menú EXTERNO sin OIDC: abre resolvedUrl/externalUrl directamente sin usar Angular Router', () => {

@@ -1,0 +1,232 @@
+<form (ngSubmit)="submit()" class="flex flex-col gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Tipo de contenido *</label>
+      <p-select
+        name="contentType"
+        [(ngModel)]="form.contentType"
+        [options]="typeOptions"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onContentTypeChange()"
+        styleClass="w-full" />
+    </div>
+
+    @if (showCategory) {
+      <div class="flex flex-col gap-1">
+        <label class="font-semibold text-sm">Categoría</label>
+        <p-select
+          name="category"
+          [(ngModel)]="form.category"
+          [options]="categoryOptions"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full" />
+      </div>
+    }
+
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Orden de aparición</label>
+      <p-inputnumber name="priority" [(ngModel)]="form.priority" [min]="1" [max]="9999" styleClass="w-full" />
+      <small style="color: var(--ep-text-muted);">1 aparece primero, 2 después, etc.</small>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Vigencia desde</label>
+      <input pInputText type="datetime-local" name="publishFrom" [(ngModel)]="form.publishFrom" />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Vigencia hasta</label>
+      <input pInputText type="datetime-local" name="publishTo" [(ngModel)]="form.publishTo" />
+    </div>
+  </div>
+
+  @if (showEventFields) {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 border rounded">
+      <div class="flex flex-col gap-1">
+        <label class="font-semibold text-sm">Inicio del evento *</label>
+        <input pInputText type="datetime-local" name="eventStart" [(ngModel)]="form.eventStart" required />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-semibold text-sm">Fin del evento</label>
+        <input pInputText type="datetime-local" name="eventEnd" [(ngModel)]="form.eventEnd" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="font-semibold text-sm">Ubicación</label>
+        <input pInputText name="eventLocation" [(ngModel)]="form.eventLocation" placeholder="Ej. Auditorio / Teams" />
+      </div>
+      <div class="flex flex-col gap-1 md:col-span-3">
+        <label class="font-semibold text-sm">Enlace de Microsoft Teams</label>
+        <input pInputText name="teamsUrl" [(ngModel)]="form.teamsUrl" maxlength="2000" placeholder="https://teams.microsoft.com/..." />
+        <small style="color: var(--ep-text-muted);">Opcional. Se mostrará como la acción “Unirse por Teams”.</small>
+      </div>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="flex flex-col gap-1" [class.md:col-span-2]="showIcon" [class.md:col-span-3]="!showIcon">
+      <label class="font-semibold text-sm">
+        Enlace (ruta relativa /... o https://...)
+        @if (form.contentType === 'QUICK_ACCESS') { * }
+      </label>
+      <input pInputText name="linkUrl" [(ngModel)]="form.linkUrl" placeholder="/pagos o https://..." [required]="form.contentType === 'QUICK_ACCESS'" />
+    </div>
+
+    @if (showIcon) {
+      <div class="flex flex-col gap-1">
+        <label class="font-semibold text-sm">Ícono</label>
+        <p-select
+          name="icon"
+          [(ngModel)]="form.icon"
+          [options]="iconOptions"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          filterBy="label,value"
+          placeholder="Sin ícono"
+          styleClass="w-full">
+          <ng-template #selectedItem let-selected>
+            @if (selected) {
+              <div class="flex items-center gap-2">
+                @if (selected.value) {
+                  <i [class]="selected.value" style="color: var(--ep-accent);"></i>
+                }
+                <span>{{ selected.label }}</span>
+              </div>
+            }
+          </ng-template>
+          <ng-template #item let-option>
+            <div class="flex items-center justify-between gap-3 w-full">
+              <div class="flex items-center gap-2">
+                @if (option.value) {
+                  <i [class]="option.value" style="color: var(--ep-accent); width: 1.1rem; text-align: center;"></i>
+                } @else {
+                  <i class="pi pi-minus" style="opacity: 0.4; width: 1.1rem; text-align: center;"></i>
+                }
+                <span>{{ option.label }}</span>
+              </div>
+              @if (option.value) {
+                <small style="color: var(--ep-text-muted);">{{ option.value }}</small>
+              }
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+    }
+  </div>
+
+  <div class="flex items-center gap-2">
+    <p-checkbox name="linkNewTab" [(ngModel)]="form.linkNewTab" [binary]="true" inputId="linkNewTab" />
+    <label for="linkNewTab" class="text-sm">Abrir enlace en nueva pestaña</label>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Audiencia: Business Units (vacío = todas)</label>
+      <p-multiselect
+        name="businessUnitIds"
+        [(ngModel)]="form.businessUnitIds"
+        [options]="audienceOptions.businessUnits"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Todas las Business Units"
+        styleClass="w-full" />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="font-semibold text-sm">Audiencia: Roles (vacío = todos)</label>
+      <p-multiselect
+        name="roleIds"
+        [(ngModel)]="form.roleIds"
+        [options]="audienceOptions.roles"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Todos los roles"
+        styleClass="w-full" />
+    </div>
+  </div>
+
+  @if (showImage) {
+    <div class="flex flex-col gap-2 p-3 border rounded">
+      <label class="font-semibold text-sm">Imagen (JPG, PNG o WebP · máx. 5 MB)</label>
+      @if (canUploadMedia) {
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)" [disabled]="uploading" />
+      }
+      @if (localPreviewUrl) {
+        <div class="flex items-center gap-3 mt-2">
+          <img [src]="localPreviewUrl" alt="Vista previa local" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px;" />
+          <p-button type="button" label="Quitar imagen" severity="secondary" size="small" (onClick)="removeImage()" />
+        </div>
+      } @else if (form.imageId) {
+        <div class="flex items-center gap-3 mt-2">
+          <img [appSecureImage]="form.imageId" alt="Vista previa" style="width: 120px; height: 80px; object-fit: cover; border-radius: 6px;" />
+          <p-button type="button" label="Quitar imagen" severity="secondary" size="small" (onClick)="removeImage()" />
+        </div>
+      }
+    </div>
+  }
+
+  <p-tabs value="es">
+    <p-tablist>
+      <p-tab value="es">Español (es-MX) *</p-tab>
+      <p-tab value="en">Inglés (en-US)</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="es">
+        <div class="flex flex-col gap-3 pt-2">
+          <div class="flex flex-col gap-1">
+            <label class="font-semibold text-sm">Título (ES) *</label>
+            <input pInputText name="esTitle" [(ngModel)]="form.esTitle" required maxlength="200" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-semibold text-sm">Resumen (ES)</label>
+            <textarea pTextarea name="esSummary" [(ngModel)]="form.esSummary" rows="2" maxlength="500"></textarea>
+          </div>
+          @if (showBody) {
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-sm">Contenido completo (ES)</label>
+              <textarea pTextarea name="esBody" [(ngModel)]="form.esBody" rows="4"></textarea>
+            </div>
+          }
+          @if (showLinkLabel) {
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-sm">Texto del enlace (ES)</label>
+              <input pInputText name="esLinkLabel" [(ngModel)]="form.esLinkLabel" maxlength="100" placeholder="Ej. Ver más" />
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="en">
+        <div class="flex flex-col gap-3 pt-2">
+          <div class="flex flex-col gap-1">
+            <label class="font-semibold text-sm">Title (EN)</label>
+            <input pInputText name="enTitle" [(ngModel)]="form.enTitle" maxlength="200" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="font-semibold text-sm">Summary (EN)</label>
+            <textarea pTextarea name="enSummary" [(ngModel)]="form.enSummary" rows="2" maxlength="500"></textarea>
+          </div>
+          @if (showBody) {
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-sm">Body (EN)</label>
+              <textarea pTextarea name="enBody" [(ngModel)]="form.enBody" rows="4"></textarea>
+            </div>
+          }
+          @if (showLinkLabel) {
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-sm">Link label (EN)</label>
+              <input pInputText name="enLinkLabel" [(ngModel)]="form.enLinkLabel" maxlength="100" placeholder="e.g. Read more" />
+            </div>
+          }
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+  <div class="flex justify-end gap-2 pt-2">
+    <p-button type="button" label="Cancelar" severity="secondary" [disabled]="uploading || saving" (onClick)="cancel.emit()" />
+    <p-button type="submit" label="Guardar" icon="pi pi-check" [loading]="uploading || saving" [disabled]="uploading || saving" />
+  </div>
+</form>

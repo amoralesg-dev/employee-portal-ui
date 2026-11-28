@@ -43,6 +43,18 @@ export const appRoutes: Routes = [
                 component: Dashboard
             },
             {
+                path: 'dashboard/contenido/:id',
+                loadComponent: () =>
+                    import('./app/features/dashboard/pages/home-content-detail/home-content-detail')
+                        .then(m => m.HomeContentDetailPage)
+            },
+            {
+                path: 'contenido-portal',
+                loadChildren: () =>
+                    import('./app/features/portal-content/portal-content.routes'),
+                canActivate: [permissionGuard('PORTAL_CONTENT_READ')]
+            },
+            {
                 path: 'business-units',
                 loadChildren: () =>
                     import('./app/features/business-units/business-units.routes'),
@@ -59,6 +71,12 @@ export const appRoutes: Routes = [
                 path: 'roles',
                 component: Roles,
                 canActivate: [permissionGuard('ROLE_READ')]
+            },
+
+            {
+                path: 'oauth-clients',
+                loadComponent: () => import('./app/features/oauth-clients/oauth-clients.component').then(m => m.OauthClientsComponent),
+                canActivate: [permissionGuard('OAUTH2_CLIENT_VIEW')]
             },
 
             {

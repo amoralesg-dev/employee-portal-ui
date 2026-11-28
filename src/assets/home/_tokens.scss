@@ -1,0 +1,30 @@
+:root {
+  // Manual de Lineamientos Rassini R04 — Paleta de color principal (pág. 36)
+  --ep-brand-gray:        var(--p-gray-800,   #565A5C); // Gris Rassini · Pantone 425 C
+  --ep-brand-orange:      var(--p-orange-600, #E98300); // Naranja Rassini · Pantone 144 C
+  --ep-brand-orange-dark: var(--p-orange-700, #D2492A); // Naranja Rassini Oscuro · Pantone 173 C
+
+  // Roles semánticos (centralizados para fácil ajuste)
+  --ep-text:              var(--ep-brand-gray);
+  --ep-text-strong:       var(--p-gray-900, #343A40);
+  --ep-text-muted:        var(--p-gray-700, #6C757D);
+  --ep-accent:            var(--ep-brand-orange);
+  --ep-accent-text:       var(--ep-brand-orange-dark);
+  --ep-hero-overlay:      linear-gradient(to top, rgba(86, 90, 92, 0.94) 0%, rgba(86, 90, 92, 0.45) 55%, rgba(86, 90, 92, 0.08) 100%);
+
+  // Superficies neutras (tokens PrimeNG / RassiniPreset)
+  --ep-surface:           var(--p-surface-0,   #FFFFFF);
+  --ep-surface-muted:     var(--p-surface-50,  #F8F9FA);
+  --ep-surface-subtle:    var(--p-surface-100, #F1F3F5);
+  --ep-border:            var(--p-surface-200, #E9ECEF);
+  --ep-font:              inherit; // 'Trebuchet MS', sans-serif heredada de _core.scss
+  --ep-radius:            0.625rem;
+  --ep-shadow-sm:         0 1px 3px rgba(86, 90, 92, 0.08);
+  --ep-shadow-md:         0 6px 18px rgba(86, 90, 92, 0.14);
+
+  // Categorías institucionales (siempre acompañadas de etiqueta de texto)
+  --ep-cat-seguridad:     var(--ep-brand-orange-dark);
+  --ep-cat-personas:      var(--ep-brand-orange);
+  --ep-cat-negocio:       var(--ep-brand-gray);
+  --ep-cat-cultura:       var(--ep-brand-gray);
+}

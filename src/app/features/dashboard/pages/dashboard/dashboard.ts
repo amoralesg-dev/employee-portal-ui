@@ -1,18 +1,17 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { 
-  Auth, 
-  PageHeaderComponent, 
-  PageContentComponent, 
-  RassiniI18nService, 
-  RassiniTranslatePipe 
+import { Router, RouterModule } from '@angular/router';
+import {
+  Auth,
+  PageHeaderComponent,
+  PageContentComponent,
+  RassiniI18nService,
+  RassiniTranslatePipe
 } from '@rassini/rassini-ui';
 import { DASHBOARD_I18N } from '../../i18n/dashboard.i18n';
+import { HomeService } from '../../services/home.service';
+import { HomeItemDto, HomeResponseDto } from '../../models/home.model';
+import { SecureImageDirective } from '../../../../shared/directives/secure-image.directive';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,128 +19,130 @@ import { DASHBOARD_I18N } from '../../i18n/dashboard.i18n';
   imports: [
     CommonModule,
     RouterModule,
-    ButtonModule,
-    CardModule,
-    TagModule,
-    TooltipModule,
     PageHeaderComponent,
     PageContentComponent,
-    RassiniTranslatePipe
+    RassiniTranslatePipe,
+    SecureImageDirective
   ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
   private readonly auth = inject(Auth);
+  private readonly homeService = inject(HomeService);
+  private readonly router = inject(Router);
   readonly i18n = inject(RassiniI18nService);
-  
-  username = '';
+
+  readonly loading = signal(true);
+  readonly home = signal<HomeResponseDto | null>(null);
 
   constructor() {
-    // Registrar diccionarios propios del Dashboard de Employee Portal
     this.i18n.registerTranslations('es-MX', DASHBOARD_I18N['es-MX']);
     this.i18n.registerTranslations('en-US', DASHBOARD_I18N['en-US']);
+
+    effect(() => {
+      const lang = this.i18n.currentLang();
+      this.loadHome(lang);
+    });
   }
+
+  readonly greetingPrefix = computed(() => {
+    this.i18n.currentLang();
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return this.i18n.translate('employee.dashboard.greeting.morning', 'Buenos días');
+    }
+    if (hour < 19) {
+      return this.i18n.translate('employee.dashboard.greeting.afternoon', 'Buenas tardes');
+    }
+    return this.i18n.translate('employee.dashboard.greeting.evening', 'Buenas noches');
+  });
 
   get displayUsername(): string {
-    return this.auth.currentUser()?.username || this.username || this.i18n.translate('employee.dashboard.session.defaultUser', 'Colaborador');
-  }
-
-  get displayEmail(): string {
-    return this.auth.currentUser()?.email || 'N/A';
-  }
-
-  get displayBus(): string {
-    // Dependencia reactiva al locale
-    this.i18n.currentLang();
-
-    if (this.auth.hasAllBusinessUnits()) {
-      return this.i18n.translate('employee.dashboard.session.allBus', 'Todas (ALL)');
+    const user = this.auth.currentUser() as { displayName?: string | null; username?: string | null } | null;
+    const displayName = user?.displayName?.trim();
+    if (displayName) {
+      return displayName;
     }
-    const bus = this.auth.businessUnits();
-    if (bus && bus.length > 0) {
-      return bus.map((b: any) => b.name || b.code).join(', ');
+    const username = user?.username?.trim();
+    if (username) {
+      return username;
     }
-    return 'N/A';
+    return this.i18n.translate('employee.dashboard.greeting.defaultUser', 'Colaborador');
   }
 
-  get displayRoles(): string {
-    const roles = this.auth.roles();
-    if (roles && roles.length > 0) {
-      return roles.join(', ');
-    }
-    return 'EMPLOYEE_USER';
+  getCategoryLabel(category?: string | null): string {
+    if (!category) return '';
+    return this.i18n.translate(`employee.dashboard.categories.${category}`, category);
   }
-  
-  readonly newsList = computed(() => {
-    this.i18n.currentLang();
-    return [
-      {
-        id: 1,
-        title: this.i18n.translate('employee.dashboard.news.item1.title', 'Nueva Política de Trabajo Remoto'),
-        summary: this.i18n.translate('employee.dashboard.news.item1.summary', 'Revisa las actualizaciones sobre nuestros días de home office y flexibilidad.'),
-        image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=400&q=80',
-        date: '2026-09-01'
-      }
-    ];
+
+  getQuickGridClass(count: number): string {
+    if (count <= 1) return 'ep-quick-grid ep-quick-grid--count-1';
+    if (count === 2) return 'ep-quick-grid ep-quick-grid--count-2';
+    if (count === 3) return 'ep-quick-grid ep-quick-grid--count-3';
+    return 'ep-quick-grid ep-quick-grid--count-4';
+  }
+
+  formatEventTime(start?: string | null, end?: string | null): string {
+    if (!start) return '';
+    const locale = this.i18n.currentLang() || 'es-MX';
+    const formatter = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' });
+    const startDate = new Date(start);
+    if (Number.isNaN(startDate.getTime())) return '';
+    const startText = formatter.format(startDate);
+    if (!end) return startText;
+    const endDate = new Date(end);
+    if (Number.isNaN(endDate.getTime())) return startText;
+    return `${startText} - ${formatter.format(endDate)}`;
+  }
+
+  readonly hasAnyContent = computed(() => {
+    const data = this.home();
+    if (!data) return false;
+    return !!(
+      data.hero ||
+      data.secondaryNews.length ||
+      data.quickAccess.length ||
+      data.campaigns.length ||
+      data.weeklyInfo.length ||
+      data.events.length ||
+      data.notices.length
+    );
   });
 
-  readonly announcements = computed(() => {
-    this.i18n.currentLang();
-    return [
-      { 
-        title: this.i18n.translate('employee.dashboard.announcements.item1.title', 'Mantenimiento del ERP'), 
-        date: this.i18n.translate('employee.dashboard.announcements.item1.date', 'Esta noche, 22:00 hrs'), 
-        content: this.i18n.translate('employee.dashboard.announcements.item1.content', 'El sistema SAP no estará disponible durante 2 horas.') 
-      },
-      { 
-        title: this.i18n.translate('employee.dashboard.announcements.item2.title', 'Encuesta de Clima Laboral'), 
-        date: this.i18n.translate('employee.dashboard.announcements.item2.date', 'Hasta el viernes'), 
-        content: this.i18n.translate('employee.dashboard.announcements.item2.content', 'Tu opinión es importante, recuerda completarla.') 
-      }
-    ];
-  });
+  ngOnInit(): void {
+    // Carga inicial disparada por effect() con el idioma activo
+  }
 
-  readonly events = computed(() => {
-    this.i18n.currentLang();
-    return [
-      { 
-        title: this.i18n.translate('employee.dashboard.events.item1.title', 'Townhall Q3'), 
-        monthBadge: this.i18n.translate('employee.dashboard.events.item1.monthBadge', 'SEP'), 
-        dayBadge: this.i18n.translate('employee.dashboard.events.item1.dayBadge', '15'), 
-        location: this.i18n.translate('employee.dashboard.events.item1.location', 'Auditorio Principal / Teams') 
+  private loadHome(lang: string): void {
+    this.loading.set(true);
+    this.homeService.getHome(lang).subscribe({
+      next: (data) => {
+        this.home.set(data);
+        this.loading.set(false);
       },
-      { 
-        title: this.i18n.translate('employee.dashboard.events.item2.title', 'Torneo de Fútbol'), 
-        monthBadge: this.i18n.translate('employee.dashboard.events.item2.monthBadge', 'SEP'), 
-        dayBadge: this.i18n.translate('employee.dashboard.events.item2.dayBadge', '22'), 
-        location: this.i18n.translate('employee.dashboard.events.item2.location', 'Canchas Deportivas Sur') 
+      error: () => {
+        this.home.set(null);
+        this.loading.set(false);
       }
-    ];
-  });
+    });
+  }
 
-  readonly birthdays = computed(() => {
-    this.i18n.currentLang();
-    return [
-      { 
-        name: 'Ana Martínez', 
-        role: this.i18n.translate('employee.dashboard.birthdays.roles.finance', 'Finanzas'), 
-        date: this.i18n.translate('employee.dashboard.birthdays.dates.today', 'Hoy') 
-      },
-      { 
-        name: 'Carlos López', 
-        role: this.i18n.translate('employee.dashboard.birthdays.roles.operations', 'Operaciones'), 
-        date: this.i18n.translate('employee.dashboard.birthdays.dates.tomorrow', 'Mañana') 
-      },
-      { 
-        name: 'Diana Gómez', 
-        role: this.i18n.translate('employee.dashboard.birthdays.roles.it', 'Sistemas'), 
-        date: this.i18n.translate('employee.dashboard.birthdays.dates.thursday', 'Jueves') 
-      }
-    ];
-  });
+  isActionable(item: HomeItemDto): boolean {
+    return !!(item.type === 'EVENT' || item.hasBody || item.link?.url);
+  }
 
-  ngOnInit() {
-    this.username = this.auth.currentUser()?.username || 'Colaborador';
+  openItem(item: HomeItemDto): void {
+    if (item.type === 'EVENT' || item.hasBody) {
+      this.router.navigate(['/dashboard/contenido', item.id]);
+      return;
+    }
+    const url = item.link?.url;
+    if (!url) return;
+    if (url.startsWith('/')) {
+      this.router.navigateByUrl(url);
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+      window.open(url, item.link?.newTab ? '_blank' : '_self', 'noopener,noreferrer');
+    }
   }
 }
